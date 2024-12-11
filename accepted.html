@@ -101,6 +101,14 @@
             color: #28a745;
             margin-top: 20px;
         }
+        .qr-code-container {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .qr-code {
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -207,16 +215,18 @@
                 <h1>QR Code Scanner</h1>
                 <video id="camera" autoplay playsinline></video>
                 <p id="output">Scanning for QR Code...</p>
-                <div class="success-message">
+                <div id="success-message-${orderId}" class="success-message">
                     <h2>Order Successfully Completed!</h2>
                     <p>Your QR Code has been verified.</p>
+                    <button onclick="generateUPIQrCode('${orderId}', '${totalAmount}', '${productList}', 'qr-code-container-${orderId}')">Payment</button>
                 </div>
+                <div id="qr-code-container-${orderId}" class="qr-code-container"></div>
             `;
 
             let videoStream;
             const videoElement = document.getElementById('camera');
             const outputElement = document.getElementById('output');
-            const successMessage = document.querySelector('.success-message');
+            const successMessage = document.getElementById(`success-message-${orderId}`);
             const canvasElement = document.createElement('canvas');
             const canvasContext = canvasElement.getContext('2d');
 
@@ -241,10 +251,9 @@
                     const qrCode = jsQR(imageData.data, canvasElement.width, canvasElement.height);
 
                     if (qrCode) {
-                        if (qrCode.data === `${orderId}`) {
+                        if (qrCode.data === orderId) {
                             outputElement.textContent = "";
                             showSuccessMessage();
-                            generatePaymentQRCode(orderId, totalAmount, productList);
                             stopCamera();
                             return;
                         } else {
@@ -270,31 +279,24 @@
         };
 
         // Generate Payment QR Code
-        function generatePaymentQRCode(orderId, totalAmount, productList) {
+        window.generateUPIQrCode = function(orderId, totalAmount, productList, qrCodeContainerId) {
             const upiAddress = "skrohanhsr@axl";
             const recipientName = "RecipientName"; 
 
             const message = `Order ID: ${orderId}, Products: ${productList}, Total: ₹${totalAmount}, Time: ${new Date().toLocaleString()}`;
-            const upiUrl = `upi://pay?pa=${upiAddress}&pn=${recipientName}&am=${totalAmount}&cu=INR&tn=${encodeURIComponent(message)}`;
+            const upiUrl = `upi://pay?pa=${upiAddress}&pn=${recipientName}&mc=0000&tid=${orderId}&tr=${orderId}&tn=${message}&am=${totalAmount}&cu=INR`;
 
-            const qrCodeDiv = document.getElementById('qrcode');
-            qrCodeDiv.innerHTML = "";
-
-            QRCode.toCanvas(document.createElement('canvas'), upiUrl, { 
-                width: 200,
-                margin: 2
-            }, (error, canvas) => {
+            QRCode.toCanvas(document.getElementById(qrCodeContainerId), upiUrl, function(error) {
                 if (error) {
-                    console.error("QR code generation error:", error);
+                    console.error(error);
                 } else {
-                    qrCodeDiv.appendChild(canvas);
-                    console.log("QR code generated successfully!");
+                    console.log("UPI QR code generated successfully.");
                 }
             });
-        }
+        };
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', fetchAcceptedOrders);
+        // Initialize Orders
+        fetchAcceptedOrders();
     </script>
 </body>
 </html>
