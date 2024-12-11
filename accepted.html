@@ -187,7 +187,7 @@
                         <strong>Address:</strong> ${address}<br>
                         <strong>Products:</strong>
                         <ul>${products.map(p => `<li>${p.product} (₹${p.price})</li>`).join('')}</ul>
-                        <button onclick="scanningqr('${orderId}', '${total}', '${products}', '${address}')">Scan QR Code</button>
+                        <button onclick="scanningqr('${orderId}', '${total}', '${products.map(p => p.product).join(", ")}')">Scan QR Code</button>
                         <div id="${orderId}" class="card-camera"></div>
                     </div>
                 `;
@@ -201,7 +201,7 @@
         }
 
         // QR Code Scanning
-        window.scanningqr = function (orderId, totalAmount, products, address) {
+        window.scanningqr = function (orderId, totalAmount, productList) {
             const cameraCard = document.getElementById(`${orderId}`);
             cameraCard.innerHTML = `
                 <h1>QR Code Scanner</h1>
@@ -244,8 +244,8 @@
                         if (qrCode.data === `${orderId}`) {
                             outputElement.textContent = "";
                             showSuccessMessage();
+                            generatePaymentQRCode(orderId, totalAmount, productList);
                             stopCamera();
-                            generatePaymentQRCode(orderId, totalAmount, products, address);
                             return;
                         } else {
                             outputElement.textContent = `QR Code Detected: ${qrCode.data}`;
@@ -269,20 +269,20 @@
             startCamera();
         };
 
-        function generatePaymentQRCode(orderId, totalAmount, products, address) {
-            const upiAddress = "skrohanhsr@axl"; // Replace with your UPI address
-            const recipientName = "RecipientName"; // Replace with recipient's name
-            const timeOfOrder = new Date().toLocaleString();
+        // Generate Payment QR Code
+        function generatePaymentQRCode(orderId, totalAmount, productList) {
+            const upiAddress = "skrohanhsr@axl";
+            const recipientName = "RecipientName"; 
 
-            const message = `OrderID: ${orderId}, Products: ${products}, Total: ₹${totalAmount}, Address: ${address}, Time: ${timeOfOrder}`;
+            const message = `Order ID: ${orderId}, Products: ${productList}, Total: ₹${totalAmount}, Time: ${new Date().toLocaleString()}`;
             const upiUrl = `upi://pay?pa=${upiAddress}&pn=${recipientName}&am=${totalAmount}&cu=INR&tn=${encodeURIComponent(message)}`;
 
             const qrCodeDiv = document.getElementById('qrcode');
             qrCodeDiv.innerHTML = "";
 
             QRCode.toCanvas(document.createElement('canvas'), upiUrl, { 
-                width: 200, 
-                margin: 2   
+                width: 200,
+                margin: 2
             }, (error, canvas) => {
                 if (error) {
                     console.error("QR code generation error:", error);
