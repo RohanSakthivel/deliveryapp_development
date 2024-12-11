@@ -187,7 +187,7 @@
                         <strong>Address:</strong> ${address}<br>
                         <strong>Products:</strong>
                         <ul>${products.map(p => `<li>${p.product} (₹${p.price})</li>`).join('')}</ul>
-                        <button onclick="scanningqr('${orderId}', '${total}')">Scan QR Code</button>
+                        <button onclick="scanningqr('${orderId}', '${total}', '${products}')">Scan QR Code</button>
                         <div id="${orderId}" class="card-camera"></div>
                     </div>
                 `;
@@ -201,7 +201,7 @@
         }
 
         // QR Code Scanning
-        window.scanningqr = function (orderId, totalAmount) {
+        window.scanningqr = function (orderId, totalAmount, products) {
             const cameraCard = document.getElementById(`${orderId}`);
             cameraCard.innerHTML = `
                 <h1>QR Code Scanner</h1>
@@ -245,6 +245,7 @@
                             outputElement.textContent = "";
                             showSuccessMessage();
                             stopCamera();
+                            generateUPIQrCode(orderId, totalAmount, products);
                             return;
                         } else {
                             outputElement.textContent = `QR Code Detected: ${qrCode.data}`;
@@ -267,6 +268,31 @@
 
             startCamera();
         };
+
+        // Generate UPI QR Code
+        function generateUPIQrCode(orderId, totalAmount, products) {
+            const upiAddress = "skrohanhsr@axl"; // Replace with your UPI address
+            const recipientName = "RecipientName"; // Replace with recipient's name
+            const message = `Order ID: ${orderId}, Products: ${products.map(p => p.product).join(', ')}, Total: ₹${totalAmount}`;
+
+            // Construct UPI URL with transaction note (message)
+            const upiUrl = `upi://pay?pa=${upiAddress}&pn=${recipientName}&am=${totalAmount}&cu=INR&tn=${encodeURIComponent(message)}`;
+
+            const qrCodeDiv = document.getElementById('qrcode');
+            qrCodeDiv.innerHTML = "";
+
+            QRCode.toCanvas(document.createElement('canvas'), upiUrl, { 
+                width: 200, // Set size
+                margin: 2   // Set margin
+            }, (error, canvas) => {
+                if (error) {
+                    console.error("QR code generation error:", error);
+                } else {
+                    qrCodeDiv.appendChild(canvas);
+                    console.log("UPI QR code generated successfully!");
+                }
+            });
+        }
 
         // Initialize
         document.addEventListener('DOMContentLoaded', fetchAcceptedOrders);
