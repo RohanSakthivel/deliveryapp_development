@@ -73,6 +73,7 @@
         }
         #qrcode {
             text-align: center;
+            margin-top: 20px;
         }
         @media (max-width: 600px) {
             .order-item {
@@ -117,7 +118,6 @@
         <h2>Accepted Orders</h2>
         <div id="order-container"></div>
         <div id="error-message"></div>
-        <div id="qrcode" style="margin-top: 20px;"></div>
     </section>
 
     <!-- Script Section -->
@@ -207,16 +207,18 @@
                 <h1>QR Code Scanner</h1>
                 <video id="camera" autoplay playsinline></video>
                 <p id="output">Scanning for QR Code...</p>
-                <div class="success-message">
+                <div id="success-message-${orderId}" class="success-message">
                     <h2>Order Successfully Completed!</h2>
                     <p>Your QR Code has been verified.</p>
                 </div>
+                <div id="payment-qr-${orderId}" class="qr-code" style="margin-top: 20px;"></div>
             `;
 
             let videoStream;
             const videoElement = document.getElementById('camera');
             const outputElement = document.getElementById('output');
-            const successMessage = document.querySelector('.success-message');
+            const successMessage = document.getElementById(`success-message-${orderId}`);
+            const qrCodeContainer = document.getElementById(`payment-qr-${orderId}`);
             const canvasElement = document.createElement('canvas');
             const canvasContext = canvasElement.getContext('2d');
 
@@ -245,8 +247,7 @@
                             outputElement.textContent = "";
                             showSuccessMessage();
                             stopCamera();
-                            // Generate the QR code and display success simultaneously
-                            generateUPIQrCode(orderId, totalAmount, products);
+                            generateUPIQrCode(orderId, totalAmount, products, qrCodeContainer);
                             return;
                         } else {
                             outputElement.textContent = `QR Code Detected: ${qrCode.data}`;
@@ -271,7 +272,7 @@
         };
 
         // Generate UPI QR Code
-        function generateUPIQrCode(orderId, totalAmount, products) {
+        function generateUPIQrCode(orderId, totalAmount, products, qrCodeContainer) {
             const upiAddress = "skrohanhsr@axl"; // Replace with your UPI address
             const recipientName = "Zoloww";
             const total = totalAmount;
@@ -279,7 +280,7 @@
 
             const upiUrl = `upi://pay?pa=${upiAddress}&pn=${recipientName}&mc=1234&tid=${orderId}&tr=${orderId}&tn=${productsList}&am=${total}&cu=INR`;
 
-            QRCode.toCanvas(document.getElementById('qrcode'), upiUrl, function (error) {
+            QRCode.toCanvas(qrCodeContainer, upiUrl, function (error) {
                 if (error) console.error(error);
                 console.log('UPI QR Code generated successfully!');
             });
