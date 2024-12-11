@@ -207,7 +207,7 @@
                 <h1>QR Code Scanner</h1>
                 <video id="camera" autoplay playsinline></video>
                 <p id="output">Scanning for QR Code...</p>
-                <div class="success-message">
+                <div class="success-message" id="qrcode">
                     <h2>Order Successfully Completed!</h2>
                     <p>Your QR Code has been verified.</p>
                 </div>
@@ -271,6 +271,7 @@
 
         // Generate UPI QR Code
         function generateUPIQrCode(orderId, totalAmount, products) {
+            const Payment = document.getElementById('payment');
             const upiAddress = "skrohanhsr@axl"; // Replace with your UPI address
             const recipientName = "RecipientName"; // Replace with recipient's name
             const message = `Order ID: ${orderId}, Products: ${products.map(p => p.product).join(', ')}, Total: ₹${totalAmount}`;
