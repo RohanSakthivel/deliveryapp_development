@@ -155,7 +155,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
         import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyD4_h-2b2_IjrfvSKOxHrL9gWotG-SanFo",
             authDomain: "zolowworder.firebaseapp.com",
@@ -169,7 +168,6 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Fetch Accepted Orders
         async function fetchAcceptedOrders() {
             const orderContainer = document.getElementById('order-container');
             const errorContainer = document.getElementById('error-message');
@@ -203,52 +201,45 @@
             }
         }
 
-        // Display Orders
         function displayOrders(orders) {
             const orderContainer = document.getElementById('order-container');
             orderContainer.innerHTML = '';
             for (const [orderId, details] of Object.entries(orders)) {
                 const { total = "0", address = "N/A", status = "N/A", products = [] } = details;
-                const orderHTML = 
+                const orderHTML = `
                     <div class="order-item">
                         <strong>Order ID:</strong> ${orderId}<br>
                         <strong>Status:</strong> ${status}<br>
                         <strong>Total:</strong> ₹${total}<br>
                         <strong>Address:</strong> ${address}<br>
                         <strong>Products:</strong>
-                        <ul>${products.map(p => <li>${p.product} (₹${p.price})</li>).join('')}</ul>
+                        <ul>${products.map(p => `<li>${p.product} (₹${p.price})</li>`).join('')}</ul>
                         <button onclick="scanningqr('${orderId}', '${total}', '${products.map(p => p.product).join(", ")}', '${address}')">Scan QR Code</button>
                         <div id="camera-container-${orderId}" class="card-camera"></div>
                     </div>
-                ;
+                `;
                 orderContainer.insertAdjacentHTML('beforeend', orderHTML);
             }
         }
 
-        // Display Error
         function displayError(message) {
             document.getElementById('error-message').textContent = message;
         }
 
-        // QR Code Scanning
         window.scanningqr = function (orderId, totalAmount, productList, expectedAddress) {
-            const cameraContainer = document.getElementById(camera-container-${orderId});
+            const cameraContainer = document.getElementById(`camera-container-${orderId}`);
             const upiAddress = "skrohanhsr@axl";
             const recipientName = "Zoloww Delivery";
-            const message = Orderid: "${orderId} Products: ${productList} Totalamount: ${totalAmount};
-            const address = upi://pay?pa=${upiAddress}&pn=${recipientName}&am=${totalAmount}&cu=INR&tn=${encodeURIComponent(message)};
+            const message = `Orderid: "${orderId} Products: ${productList} Totalamount: ${totalAmount}`;
+            const address = `upi://pay?pa=${upiAddress}&pn=${recipientName}&am=${totalAmount}&cu=INR&tn=${encodeURIComponent(message)}`;
 
-            // Generate QR code
             const paymentContainer = document.createElement('div');
             cameraContainer.appendChild(paymentContainer);
-            QRCode.toCanvas(paymentContainer, address, function(error) {
-                if (error) {
-                    console.error(error);
-                }
+            QRCode.toCanvas(paymentContainer, address, function (error) {
+                if (error) console.error(error);
             });
 
-            // Camera Setup and QR Scanning
-            cameraContainer.innerHTML = 
+            cameraContainer.innerHTML = `
                 <h1>QR Code Scanner</h1>
                 <video id="camera-${orderId}" autoplay playsinline></video>
                 <p id="output-${orderId}">Scanning for QR Code...</p>
@@ -256,11 +247,11 @@
                     <h2>Order Successfully Completed!</h2>
                     <p>Your QR Code has been verified.</p>
                 </div>
-            ;
+            `;
 
-            const videoElement = document.getElementById(camera-${orderId});
-            const outputElement = document.getElementById(output-${orderId});
-            const successMessage = document.getElementById(success-message-${orderId});
+            const videoElement = document.getElementById(`camera-${orderId}`);
+            const outputElement = document.getElementById(`output-${orderId}`);
+            const successMessage = document.getElementById(`success-message-${orderId}`);
             const canvasElement = document.createElement('canvas');
             const canvasContext = canvasElement.getContext('2d');
             let videoStream;
@@ -282,38 +273,26 @@
                     canvasContext.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
 
                     const imageData = canvasContext.getImageData(0, 0, canvasElement.width, canvasElement.height);
-                    const qrCode = jsQR(imageData.data, canvasElement.width, canvasElement.height);
+                    const qrCode = jsQR(imageData.data, imageData.width, imageData.height);
 
                     if (qrCode) {
-                        if (qrCode.data === orderId) {
-                            outputElement.textContent = "QR Code Verified!";
-                            successMessage.style.display = "block";
-                            updateOrderStatus(orderId);
-                        } else {
-                            outputElement.textContent = "Invalid QR Code. Please try again.";
+                        outputElement.textContent = `Scanned QR Code: ${qrCode.data}`;
+                        successMessage.style.display = 'block';
+
+                        if (videoStream) {
+                            videoStream.getTracks().forEach(track => track.stop());
                         }
                     } else {
-                        outputElement.textContent = "Scanning QR code...";
+                        requestAnimationFrame(scanQRCode);
                     }
+                } else {
+                    requestAnimationFrame(scanQRCode);
                 }
-                requestAnimationFrame(scanQRCode);
             }
 
             startCamera();
-
-            // Update Order Status in Firebase
-            async function updateOrderStatus(orderId) {
-                try {
-                    const orderRef = doc(db, 'acceptedOrders', orderId);
-                    await updateDoc(orderRef, { status: "Completed" });
-                    console.log(Order ${orderId} marked as completed.);
-                } catch (error) {
-                    console.error('Error updating order status:', error);
-                }
-            }
         };
 
-        // Initialize the page by fetching the accepted orders
         fetchAcceptedOrders();
     </script>
 </body>
