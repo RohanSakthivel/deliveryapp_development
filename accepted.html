@@ -179,7 +179,7 @@
                         <strong>Address:</strong> ${address}<br>
                         <strong>Products:</strong>
                         <ul>${products.map(p => `<li>${p.product} (₹${p.price})</li>`).join('')}</ul>
-                        <button onclick="scanningqr('${orderId}', '${total}', '${products}')">Scan QR Code</button>
+                        <button onclick="scanningqr('${orderId}', '${total}', ${JSON.stringify(products)})">Scan QR Code</button>
                         <div id="${orderId}" class="card-camera"></div>
                     </div>
                 `;
@@ -202,6 +202,7 @@
                 <div id="success-message-${orderId}" class="success-message">
                     <h2>Order Successfully Completed!</h2>
                     <p>Your QR Code has been verified.</p>
+                    <button onclick="generateUPIQrCode(${orderId},${totalAmount},${JSON.stringify(products)}, 'payment-qr-${orderId}')">Generate Payment QR</button>
                 </div>
                 <div id="qr-code-container-${orderId}" class="qr-code-container">
                     <div id="payment-qr-${orderId}" class="qr-code"></div>
@@ -260,26 +261,19 @@
                 videoStream.getTracks().forEach(track => track.stop());
             }
 
-            // Generate UPI QR Code
-            function generateUPIQrCode(orderId, total, productsList, qrCodeContainer) {
-                const upiAddress = 'recipient@upi'; // Replace with actual UPI ID
-                const recipientName = 'Zoloww Store';
-                const products = productsList.map(p => p.product).join(", ");
-
-                const upiUrl = `upi://pay?pa=${upiAddress}&pn=${recipientName}&mc=1234&tid=${orderId}&tr=${orderId}&tn=${products}&am=${total}&cu=INR`;
-
-                QRCode.toCanvas(qrCodeContainer, upiUrl, function (error) {
-                    if (error) {
-                        console.error('Error generating QR code:', error);
-                    } else {
-                        console.log('UPI QR Code generated successfully!');
-                    }
-                });
-            }
-
             startCamera();
-        };
+        }
 
+        // Generate UPI QR Code
+        window.generateUPIQrCode = function (orderId, totalAmount, products, qrCodeContainerId) {
+            const qrCodeContainer = document.getElementById(qrCodeContainerId);
+            const upiDetails = `upi://pay?pa=someone@upi&pn=Zoloww&mc=123456&tid=${orderId}&am=${totalAmount}&cu=INR&url=https://www.zoloww.com/order/${orderId}`;
+            QRCode.toCanvas(qrCodeContainer, upiDetails, function (error) {
+                if (error) console.error('QR Code Generation Failed:', error);
+            });
+        }
+
+        // Fetch accepted orders when page loads
         fetchAcceptedOrders();
     </script>
 </body>
