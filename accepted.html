@@ -240,9 +240,11 @@
                 <div id="success-message-${orderId}" class="success-message">
                     <h2>Order Successfully Completed!</h2>
                     <p>Your QR Code has been verified.</p>
+                    <div id="qr-code-container-${orderId}" class="qr-code-container">
+                        <p>Payment QR Code:</p>
+                    </div>
                     <button onclick="generateUPIQrCode('${orderId}', '${totalAmount}', '${productList}', 'qr-code-container-${orderId}')">Payment</button>
                 </div>
-                <div id="qr-code-container-${orderId}" class="qr-code-container"></div>
             `;
 
             // Generate Payment QR Code
@@ -310,17 +312,14 @@
                         outputElement.textContent = "QR Code Scanned!";
                         successMessage.style.display = 'block';
                         videoStream.getTracks().forEach(track => track.stop());
-                    } else {
-                        outputElement.textContent = "No QR Code found. Trying again...";
                     }
                 }
                 requestAnimationFrame(scanQRCode);
             }
 
             startCamera();
-        };
+        }
 
-        // Initialize page
         fetchAcceptedOrders();
     </script>
 </body>
