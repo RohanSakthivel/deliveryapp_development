@@ -233,7 +233,7 @@
             const message = `Orderid: "${orderId} Products: ${productList} Totalamount: ${totalAmount}`;
             const address = `upi://pay?pa=${upiAddress}&pn=${recipientName}&am=${totalAmount}&cu=INR&tn=${encodeURIComponent(message)}`;
 
-            const paymentContainer = document.getElementById(`payment-${orderId}`);
+            const paymentContainer = document.getElementById("payment");
             cameraContainer.appendChild(paymentContainer);
             QRCode.toCanvas(paymentContainer, address, function (error) {
                 if (error) console.error(error);
@@ -246,7 +246,7 @@
                 <div id="success-message-${orderId}" class="success-message">
                     <h2>Order Successfully Completed!</h2>
                     <p>Your QR Code has been verified.</p>
-                    <div id="payment-${orderId}"></div>
+                    <div id="payment"></div>
                 </div>
             `;
 
