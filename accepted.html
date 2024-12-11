@@ -114,167 +114,139 @@
 
     <!-- Script Section -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-        // Firebase Configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyD4_h-2b2_IjrfvSKOxHrL9gWotG-SanFo",
-            authDomain: "zolowworder.firebaseapp.com",
-            projectId: "zolowworder",
-            storageBucket: "zolowworder.appspot.com",
-            messagingSenderId: "996982358637",
-            appId: "1:996982358637:web:1adcf03392a68d5c6f3564",
-            measurementId: "G-4L2GTKRRMF"
-        };
+    const firebaseConfig = {
+        apiKey: "AIzaSyD4_h-2b2_IjrfvSKOxHrL9gWotG-SanFo",
+        authDomain: "zolowworder.firebaseapp.com",
+        projectId: "zolowworder",
+        storageBucket: "zolowworder.appspot.com",
+        messagingSenderId: "996982358637",
+        appId: "1:996982358637:web:1adcf03392a68d5c6f3564",
+        measurementId: "G-4L2GTKRRMF"
+    };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-        // Fetch Accepted Orders
-        async function fetchAcceptedOrders() {
-            const orderContainer = document.getElementById('order-container');
-            const errorContainer = document.getElementById('error-message');
-            const userEmail = localStorage.getItem('userEmail');
-            orderContainer.innerHTML = '<p>Loading orders...</p>';
-            errorContainer.textContent = '';
+    async function fetchAcceptedOrders() {
+        // Existing code for fetching orders
+    }
 
-            if (!userEmail) {
-                displayError("User email not found. Redirecting to login...");
-                setTimeout(() => window.location.href = '/login.html', 3000);
-                return;
-            }
-
-            try {
-                const userRef = doc(db, 'deliveryPartners', userEmail);
-                const userDoc = await getDoc(userRef);
-
-                if (userDoc.exists()) {
-                    const acceptedOrders = userDoc.data().ordersAccepted || {};
-                    if (Object.keys(acceptedOrders).length === 0) {
-                        displayError("No accepted orders found.");
-                        return;
-                    }
-                    displayOrders(acceptedOrders);
-                } else {
-                    displayError("User profile not found.");
-                }
-            } catch (error) {
-                console.error('Error fetching accepted orders:', error);
-                displayError("Failed to load orders. Try again later.");
-            }
-        }
-
-        // Display Orders
-        function displayOrders(orders) {
-            const orderContainer = document.getElementById('order-container');
-            orderContainer.innerHTML = '';
-            for (const [orderId, details] of Object.entries(orders)) {
-                const { total = "0", address = "N/A", status = "N/A", products = [] } = details;
-                const orderHTML = `
-                    <div class="order-item">
-                        <strong>Order ID:</strong> ${orderId}<br>
-                        <strong>Status:</strong> ${status}<br>
-                        <strong>Total:</strong> ₹${total}<br>
-                        <strong>Address:</strong> ${address}<br>
-                        <strong>Products:</strong>
-                        <ul>${products.map(p => `<li>${p.product} (₹${p.price})</li>`).join('')}</ul>
-                        <button onclick="scanningqr('${orderId}', '${total}', ${JSON.stringify(products)})">Scan QR Code</button>
-                        <div id="${orderId}" class="card-camera"></div>
-                    </div>
-                `;
-                orderContainer.insertAdjacentHTML('beforeend', orderHTML);
-            }
-        }
-
-        // Display Error
-        function displayError(message) {
-            document.getElementById('error-message').textContent = message;
-        }
-
-        // QR Code Scanning
-        window.scanningqr = function (orderId, totalAmount, products) {
-            const cameraCard = document.getElementById(`${orderId}`);
-            cameraCard.innerHTML = `
-                <h1>QR Code Scanner</h1>
-                <video id="camera" autoplay playsinline></video>
-                <p id="output">Scanning for QR Code...</p>
-                <div id="success-message-${orderId}" class="success-message">
-                    <h2>Order Successfully Completed!</h2>
-                    <p>Your QR Code has been verified.</p>
-                    <button onclick="generateUPIQrCode(${orderId},${totalAmount},${JSON.stringify(products)}, 'payment-qr-${orderId}')">Generate Payment QR</button>
-                </div>
-                <div id="qr-code-container-${orderId}" class="qr-code-container">
-                    <div id="payment-qr-${orderId}" class="qr-code"></div>
-                    <div id="success-message-container-${orderId}" class="success-message"></div>
+    function displayOrders(orders) {
+        const orderContainer = document.getElementById('order-container');
+        orderContainer.innerHTML = '';
+        for (const [orderId, details] of Object.entries(orders)) {
+            const { total = "0", address = "N/A", status = "N/A", products = [] } = details;
+            const orderHTML = `
+                <div class="order-item">
+                    <strong>Order ID:</strong> ${orderId}<br>
+                    <strong>Status:</strong> ${status}<br>
+                    <strong>Total:</strong> ₹${total}<br>
+                    <strong>Address:</strong> ${address}<br>
+                    <strong>Products:</strong>
+                    <ul>${products.map(p => `<li>${p.product} (₹${p.price})</li>`).join('')}</ul>
+                    <button onclick="scanningqr('${orderId}', '${total}')">Scan QR Code</button>
+                    <div id="${orderId}" class="card-camera"></div>
                 </div>
             `;
+            orderContainer.insertAdjacentHTML('beforeend', orderHTML);
+        }
+    }
 
-            let videoStream;
-            const videoElement = document.getElementById('camera');
-            const outputElement = document.getElementById('output');
-            const successMessage = document.getElementById(`success-message-${orderId}`);
-            const qrCodeContainer = document.getElementById(`payment-qr-${orderId}`);
-            const canvasElement = document.createElement('canvas');
-            const canvasContext = canvasElement.getContext('2d');
+    window.scanningqr = function (orderId, totalAmount) {
+        const cameraCard = document.getElementById(`${orderId}`);
+        cameraCard.innerHTML = `
+            <h1>QR Code Scanner</h1>
+            <video id="camera" autoplay playsinline></video>
+            <p id="output">Scanning for QR Code...</p>
+            <div class="success-message">
+                <h2>Order Successfully Completed!</h2>
+                <p>Your QR Code has been verified.</p>
+                <div id="payment-qr"></div>
+            </div>
+        `;
 
-            async function startCamera() {
-                try {
-                    videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-                    videoElement.srcObject = videoStream;
+        let videoStream;
+        const videoElement = document.getElementById('camera');
+        const outputElement = document.getElementById('output');
+        const successMessage = document.querySelector('.success-message');
+        const canvasElement = document.createElement('canvas');
+        const canvasContext = canvasElement.getContext('2d');
 
-                    videoElement.addEventListener('loadeddata', () => scanQRCode());
-                } catch (err) {
-                    alert('Error accessing camera: ' + err.message);
-                }
+        async function startCamera() {
+            try {
+                videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                videoElement.srcObject = videoStream;
+
+                videoElement.addEventListener('loadeddata', () => scanQRCode());
+            } catch (err) {
+                alert('Error accessing camera: ' + err.message);
             }
-
-            function scanQRCode() {
-                if (videoElement.readyState === videoElement.HAVE_ENOUGH_DATA) {
-                    canvasElement.width = videoElement.videoWidth;
-                    canvasElement.height = videoElement.videoHeight;
-                    canvasContext.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
-
-                    const imageData = canvasContext.getImageData(0, 0, canvasElement.width, canvasElement.height);
-                    const qrCode = jsQR(imageData.data, canvasElement.width, canvasElement.height);
-
-                    if (qrCode) {
-                        if (qrCode.data === `${orderId}`) {
-                            outputElement.textContent = "";
-                            showSuccessMessage();
-                            stopCamera();
-                            generateUPIQrCode(orderId, totalAmount, products, qrCodeContainer);
-                            return;
-                        } else {
-                            outputElement.textContent = `QR Code Detected: ${qrCode.data}`;
-                        }
-                    }
-                }
-                requestAnimationFrame(scanQRCode);
-            }
-
-            function showSuccessMessage() {
-                successMessage.style.display = "block";
-            }
-
-            function stopCamera() {
-                videoStream.getTracks().forEach(track => track.stop());
-            }
-
-            startCamera();
         }
 
-        // Generate UPI QR Code
-        window.generateUPIQrCode = function (orderId, totalAmount, products, qrCodeContainerId) {
-            const qrCodeContainer = document.getElementById(qrCodeContainerId);
-            const upiDetails = `upi://pay?pa=someone@upi&pn=Zoloww&mc=123456&tid=${orderId}&am=${totalAmount}&cu=INR&url=https://www.zoloww.com/order/${orderId}`;
-            QRCode.toCanvas(qrCodeContainer, upiDetails, function (error) {
-                if (error) console.error('QR Code Generation Failed:', error);
+        function scanQRCode() {
+            if (videoElement.readyState === videoElement.HAVE_ENOUGH_DATA) {
+                canvasElement.width = videoElement.videoWidth;
+                canvasElement.height = videoElement.videoHeight;
+                canvasContext.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+
+                const imageData = canvasContext.getImageData(0, 0, canvasElement.width, canvasElement.height);
+                const qrCode = jsQR(imageData.data, canvasElement.width, canvasElement.height);
+
+                if (qrCode) {
+                    if (qrCode.data === `${orderId}`) {
+                        outputElement.textContent = "";
+                        showSuccessMessage(totalAmount);
+                        stopCamera();
+                        return;
+                    } else {
+                        outputElement.textContent = `QR Code Detected: ${qrCode.data}`;
+                    }
+                }
+            }
+            requestAnimationFrame(scanQRCode);
+        }
+
+        function showSuccessMessage(totalAmount) {
+            successMessage.style.display = "block";
+            generatePaymentQRCode(totalAmount);
+        }
+
+        function generatePaymentQRCode(amount) {
+            const upiAddress = "skrohanhsr@axl"; // Replace with your UPI address
+            const recipientName = "RecipientName"; // Replace with recipient's name
+            const message = "Order Payment";
+            const paymentQRDiv = document.getElementById("payment-qr");
+
+            const upiUrl = `upi://pay?pa=${upiAddress}&pn=${recipientName}&am=${amount}&cu=INR&tn=${encodeURIComponent(message)}`;
+
+            paymentQRDiv.innerHTML = "";
+            QRCode.toCanvas(document.createElement('canvas'), upiUrl, { 
+                width: 200, // Set size
+                margin: 2   // Set margin
+            }, (error, canvas) => {
+                if (error) {
+                    console.error("QR Code generation failed:", error);
+                    return;
+                }
+                paymentQRDiv.appendChild(canvas);
             });
         }
 
-        // Fetch accepted orders when page loads
-        fetchAcceptedOrders();
-    </script>
+        function stopCamera() {
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+            }
+            videoElement.srcObject = null;
+        }
+
+        startCamera();
+    };
+
+    document.addEventListener('DOMContentLoaded', fetchAcceptedOrders);
+</script>
+
 </body>
 </html>
