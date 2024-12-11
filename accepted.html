@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,6 +16,7 @@
             padding: 0;
             background-color: #f8f9fa;
         }
+
         .navbar {
             background-color: #343a40;
             color: #fff;
@@ -23,24 +25,30 @@
             align-items: center;
             justify-content: space-between;
         }
+
         .navbar-title img {
             height: 40px;
             margin-right: 10px;
         }
+
         .navbar-title h1 {
             margin: 0;
             font-size: 20px;
         }
+
         #acceptedOrders {
             padding: 20px;
         }
+
         h2 {
             color: #343a40;
             text-align: center;
         }
+
         #order-container {
             margin-top: 20px;
         }
+
         .order-item {
             background: #fff;
             border: 1px solid #ddd;
@@ -49,9 +57,11 @@
             margin-bottom: 10px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+
         .order-item strong {
             color: #343a40;
         }
+
         button {
             padding: 8px 12px;
             color: #fff;
@@ -64,53 +74,65 @@
             max-width: 150px;
             margin: 10px auto;
         }
+
         button:hover {
             background-color: #0056b3;
         }
+
         #error-message {
             color: #d9534f;
             text-align: center;
         }
+
         #qrcode {
             text-align: center;
         }
+
         @media (max-width: 600px) {
             .order-item {
                 font-size: 14px;
                 padding: 10px;
             }
+
             .navbar-title h1 {
                 font-size: 18px;
             }
+
             button {
                 width: 80%;
                 max-width: 200px;
             }
         }
+
         video {
             width: 100%;
             height: auto;
             max-width: 100%;
         }
+
         canvas {
             display: none;
         }
+
         .success-message {
             display: none;
             text-align: center;
             color: #28a745;
             margin-top: 20px;
         }
+
         .qr-code-container {
             display: none;
             text-align: center;
             margin-top: 20px;
         }
+
         .qr-code {
             margin-top: 10px;
         }
     </style>
 </head>
+
 <body>
     <!-- Navbar -->
     <nav class="navbar">
@@ -223,6 +245,40 @@
                 <div id="qr-code-container-${orderId}" class="qr-code-container"></div>
             `;
 
+            // Generate Payment QR Code
+            function generateUPIQrCode(orderId, amount, products, qrCodeDivId) {
+                const upiAddress1 = "skrohanhsr@axl";
+                const recipientName = "Zoloww Delivery";
+                const message = `Orderid:"${orderId}
+                                 Products:${products}
+                                 Totalamount:${amount}"`;
+
+                // Validate amount
+                if (!amount || amount <= 0) {
+                    alert("Please enter a valid amount.");
+                    return;
+                }
+
+                // Construct UPI URL with transaction note
+                const upiUrl = `upi://pay?pa=${upiAddress1}&pn=${recipientName}&am=${amount}&cu=INR&tn=${encodeURIComponent(message)}`;
+
+                // Clear previous QR code
+                const qrCodeDiv = document.getElementById(qrCodeDivId);
+                qrCodeDiv.innerHTML = "";
+
+                QRCode.toCanvas(document.createElement('canvas'), upiUrl, {
+                    width: 250,
+                    margin: 4
+                }, (error, canvas) => {
+                    if (error) {
+                        console.error("QR code generation error:", error);
+                    } else {
+                        qrCodeDiv.appendChild(canvas);
+                        console.log("QR code generated successfully!");
+                    }
+                });
+            }
+
             let videoStream;
             const videoElement = document.getElementById('camera');
             const outputElement = document.getElementById('output');
@@ -248,55 +304,25 @@
                     canvasContext.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
 
                     const imageData = canvasContext.getImageData(0, 0, canvasElement.width, canvasElement.height);
-                    const qrCode = jsQR(imageData.data, canvasElement.width, canvasElement.height);
+                    const code = jsQR(imageData.data, imageData.width, imageData.height);
 
-                    if (qrCode) {
-                        if (qrCode.data === orderId) {
-                            outputElement.textContent = "";
-                            showSuccessMessage();
-                            stopCamera();
-                            return;
-                        } else {
-                            outputElement.textContent = `QR Code Detected: ${qrCode.data}`;
-                        }
+                    if (code) {
+                        outputElement.textContent = "QR Code Scanned!";
+                        successMessage.style.display = 'block';
+                        videoStream.getTracks().forEach(track => track.stop());
+                    } else {
+                        outputElement.textContent = "No QR Code found. Trying again...";
                     }
                 }
                 requestAnimationFrame(scanQRCode);
             }
 
-            function showSuccessMessage() {
-                successMessage.style.display = "block";
-            }
-
-            function stopCamera() {
-                if (videoStream) {
-                    videoStream.getTracks().forEach(track => track.stop());
-                }
-                videoElement.srcObject = null;
-            }
-
             startCamera();
         };
 
-        // Generate Payment QR Code
-        window.generateUPIQrCode = function(orderId, totalAmount, productList, qrCodeContainerId) {
-            const upiAddress = "skrohanhsr@axl";
-            const recipientName = "RecipientName"; 
-
-            const message = `Order ID: ${orderId}, Products: ${productList}, Total: ₹${totalAmount}, Time: ${new Date().toLocaleString()}`;
-            const upiUrl = `upi://pay?pa=${upiAddress}&pn=${recipientName}&mc=0000&tid=${orderId}&tr=${orderId}&tn=${message}&am=${totalAmount}&cu=INR`;
-
-            QRCode.toCanvas(document.getElementById(qrCodeContainerId), upiUrl, function(error) {
-                if (error) {
-                    console.error(error);
-                } else {
-                    console.log("UPI QR code generated successfully.");
-                }
-            });
-        };
-
-        // Initialize Orders
+        // Initialize page
         fetchAcceptedOrders();
     </script>
 </body>
+
 </html>
