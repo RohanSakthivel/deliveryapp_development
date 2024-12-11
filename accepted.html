@@ -102,6 +102,15 @@
             color: #28a745;
             margin-top: 20px;
         }
+        .qr-code-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .qr-code-container div {
+            width: 48%;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -211,7 +220,10 @@
                     <h2>Order Successfully Completed!</h2>
                     <p>Your QR Code has been verified.</p>
                 </div>
-                <div id="payment-qr-${orderId}" class="qr-code" style="margin-top: 20px;"></div>
+                <div id="qr-code-container-${orderId}" class="qr-code-container">
+                    <div id="payment-qr-${orderId}" class="qr-code"></div>
+                    <div id="success-message-container-${orderId}" class="success-message"></div>
+                </div>
             `;
 
             let videoStream;
@@ -262,29 +274,24 @@
             }
 
             function stopCamera() {
-                if (videoStream) {
-                    videoStream.getTracks().forEach(track => track.stop());
-                }
-                videoElement.srcObject = null;
+                videoStream.getTracks().forEach(track => track.stop());
+            }
+
+            function generateUPIQrCode(orderId, total, productsList, qrCodeContainer) {
+                const upiAddress = 'recipient@upi';
+                const recipientName = 'Zoloww Store';
+                const products = productsList.map(p => p.product).join(", ");
+
+                const upiUrl = `upi://pay?pa=${upiAddress}&pn=${recipientName}&mc=1234&tid=${orderId}&tr=${orderId}&tn=${products}&am=${total}&cu=INR`;
+
+                QRCode.toCanvas(qrCodeContainer, upiUrl, function (error) {
+                    if (error) console.error(error);
+                    console.log('UPI QR Code generated successfully!');
+                });
             }
 
             startCamera();
         };
-
-        // Generate UPI QR Code
-        function generateUPIQrCode(orderId, totalAmount, products, qrCodeContainer) {
-            const upiAddress = "skrohanhsr@axl"; // Replace with your UPI address
-            const recipientName = "Zoloww";
-            const total = totalAmount;
-            const productsList = products.map(p => p.product).join(", ");
-
-            const upiUrl = `upi://pay?pa=${upiAddress}&pn=${recipientName}&mc=1234&tid=${orderId}&tr=${orderId}&tn=${productsList}&am=${total}&cu=INR`;
-
-            QRCode.toCanvas(qrCodeContainer, upiUrl, function (error) {
-                if (error) console.error(error);
-                console.log('UPI QR Code generated successfully!');
-            });
-        }
 
         fetchAcceptedOrders();
     </script>
