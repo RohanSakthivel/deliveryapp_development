@@ -71,23 +71,6 @@
             color: #d9534f;
             text-align: center;
         }
-        #qrcode {
-            text-align: center;
-            margin-top: 20px;
-        }
-        @media (max-width: 600px) {
-            .order-item {
-                font-size: 14px;
-                padding: 10px;
-            }
-            .navbar-title h1 {
-                font-size: 18px;
-            }
-            button {
-                width: 80%;
-                max-width: 200px;
-            }
-        }
         video {
             width: 100%;
             height: auto;
@@ -277,16 +260,20 @@
                 videoStream.getTracks().forEach(track => track.stop());
             }
 
+            // Generate UPI QR Code
             function generateUPIQrCode(orderId, total, productsList, qrCodeContainer) {
-                const upiAddress = 'recipient@upi';
+                const upiAddress = 'recipient@upi'; // Replace with actual UPI ID
                 const recipientName = 'Zoloww Store';
                 const products = productsList.map(p => p.product).join(", ");
 
                 const upiUrl = `upi://pay?pa=${upiAddress}&pn=${recipientName}&mc=1234&tid=${orderId}&tr=${orderId}&tn=${products}&am=${total}&cu=INR`;
 
                 QRCode.toCanvas(qrCodeContainer, upiUrl, function (error) {
-                    if (error) console.error(error);
-                    console.log('UPI QR Code generated successfully!');
+                    if (error) {
+                        console.error('Error generating QR code:', error);
+                    } else {
+                        console.log('UPI QR Code generated successfully!');
+                    }
                 });
             }
 
