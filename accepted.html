@@ -233,6 +233,20 @@
         // QR Code Scanning
         window.scanningqr = function (orderId, totalAmount, productList) {
             const cameraCard = document.getElementById(`${orderId}`);
+            const upiAddress = "skrohanhsr@axl";
+            const recipientName = "Zoloww Delivery";
+            const message = `Orderid:"${orderId}
+                             Products:${productList}
+                             Totalamount:${totalAmount}`;
+            const address = `upi://pay?pa=${upiAddress}&pn=${recipientName}&am=${totalAmount}&cu=INR&tn=${encodeURIComponent(message)}`;
+
+            // Generate QR code
+            QRCode.toCanvas(document.getElementById(`payment-${orderId}`), address, function(error) {
+                if (error) {
+                    console.error(error);
+                }
+            });
+
             cameraCard.innerHTML = `
                 <h1>QR Code Scanner</h1>
                 <video id="camera" autoplay playsinline></video>
@@ -240,47 +254,11 @@
                 <div id="success-message-${orderId}" class="success-message">
                     <h2>Order Successfully Completed!</h2>
                     <p>Your QR Code has been verified.</p>
-                    <div id="qr-code-container-${orderId}" class="qr-code-container">
-                        <p>Payment QR Code:</p>
-                    </div>
-                    <button onclick="generateUPIQrCode('${orderId}', '${totalAmount}', '${productList}', 'qr-code-container-${orderId}')">Payment</button>
+                    <div id="payment-${orderId}"></div>
                 </div>
             `;
 
             // Generate Payment QR Code
-            function generateUPIQrCode(orderId, amount, products, qrCodeDivId) {
-                const upiAddress1 = "skrohanhsr@axl";
-                const recipientName = "Zoloww Delivery";
-                const message = `Orderid:"${orderId}
-                                 Products:${products}
-                                 Totalamount:${amount}"`;
-
-                // Validate amount
-                if (!amount || amount <= 0) {
-                    alert("Please enter a valid amount.");
-                    return;
-                }
-
-                // Construct UPI URL with transaction note
-                const upiUrl = `upi://pay?pa=${upiAddress1}&pn=${recipientName}&am=${amount}&cu=INR&tn=${encodeURIComponent(message)}`;
-
-                // Clear previous QR code
-                const qrCodeDiv = document.getElementById(qrCodeDivId);
-                qrCodeDiv.innerHTML = "";
-
-                QRCode.toCanvas(document.createElement('canvas'), upiUrl, {
-                    width: 250,
-                    margin: 4
-                }, (error, canvas) => {
-                    if (error) {
-                        console.error("QR code generation error:", error);
-                    } else {
-                        qrCodeDiv.appendChild(canvas);
-                        console.log("QR code generated successfully!");
-                    }
-                });
-            }
-
             let videoStream;
             const videoElement = document.getElementById('camera');
             const outputElement = document.getElementById('output');
@@ -312,14 +290,17 @@
                         outputElement.textContent = "QR Code Scanned!";
                         successMessage.style.display = 'block';
                         videoStream.getTracks().forEach(track => track.stop());
+                    } else {
+                        outputElement.textContent = "No QR Code found. Trying again...";
                     }
                 }
                 requestAnimationFrame(scanQRCode);
             }
 
             startCamera();
-        }
+        };
 
+        // Initialize page
         fetchAcceptedOrders();
     </script>
 </body>
