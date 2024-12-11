@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accepted Orders - Zoloww</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+    <style>
+        /* General Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+        }
+        .navbar {
+            background-color: #343a40;
+            color: #fff;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .navbar-title img {
+            height: 40px;
+            margin-right: 10px;
+        }
+        .navbar-title h1 {
+            margin: 0;
+            font-size: 20px;
+        }
+        #acceptedOrders {
+            padding: 20px;
+        }
+        h2 {
+            color: #343a40;
+            text-align: center;
+        }
+        #order-container {
+            margin-top: 20px;
+        }
+        .order-item {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .order-item strong {
+            color: #343a40;
+        }
+        button {
+            padding: 8px 12px;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+            max-width: 150px;
+            margin: 10px auto;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #error-message {
+            color: #d9534f;
+            text-align: center;
+        }
+        #qrcode {
+            text-align: center;
+        }
+        @media (max-width: 600px) {
+            .order-item {
+                font-size: 14px;
+                padding: 10px;
+            }
+            .navbar-title h1 {
+                font-size: 18px;
+            }
+            button {
+                width: 80%;
+                max-width: 200px;
+            }
+        }
+        video {
+            width: 100%;
+            height: auto;
+            max-width: 100%;
+        }
+        canvas {
+            display: none;
+        }
+        .success-message {
+            display: none;
+            text-align: center;
+            color: #28a745;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-title">
+            <img src="logo.png" alt="Zoloww Logo">
+            <h1>Zoloww</h1>
+        </div>
+    </nav>
+
+    <!-- Accepted Orders Section -->
+    <section id="acceptedOrders">
+        <h2>Accepted Orders</h2>
+        <div id="order-container"></div>
+        <div id="error-message"></div>
+        <div id="qrcode" style="margin-top: 20px;"></div>
+    </section>
+
+    <!-- Script Section -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyD4_h-2b2_IjrfvSKOxHrL9gWotG-SanFo",
+            authDomain: "zolowworder.firebaseapp.com",
+            projectId: "zolowworder",
+            storageBucket: "zolowworder.appspot.com",
+            messagingSenderId: "996982358637",
+            appId: "1:996982358637:web:1adcf03392a68d5c6f3564",
+            measurementId: "G-4L2GTKRRMF"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Fetch Accepted Orders
+        async function fetchAcceptedOrders() {
+            const orderContainer = document.getElementById('order-container');
+            const errorContainer = document.getElementById('error-message');
+            const userEmail = localStorage.getItem('userEmail');
+            orderContainer.innerHTML = '<p>Loading orders...</p>';
+            errorContainer.textContent = '';
+
+            if (!userEmail) {
+                displayError("User email not found. Redirecting to login...");
+                setTimeout(() => window.location.href = '/login.html', 3000);
+                return;
+            }
+
+            try {
+                const userRef = doc(db, 'deliveryPartners', userEmail);
+                const userDoc = await getDoc(userRef);
+
+                if (userDoc.exists()) {
+                    const acceptedOrders = userDoc.data().ordersAccepted || {};
+                    if (Object.keys(acceptedOrders).length === 0) {
+                        displayError("No accepted orders found.");
+                        return;
+                    }
+                    displayOrders(acceptedOrders);
+                } else {
+                    displayError("User profile not found.");
+                }
+            } catch (error) {
+                console.error('Error fetching accepted orders:', error);
+                displayError("Failed to load orders. Try again later.");
+            }
+        }
+
+        // Display Orders
+        function displayOrders(orders) {
+            const orderContainer = document.getElementById('order-container');
+            orderContainer.innerHTML = '';
+            for (const [orderId, details] of Object.entries(orders)) {
+                const { total = "0", address = "N/A", status = "N/A", products = [] } = details;
+                const orderHTML = `
+                    <div class="order-item">
+                        <strong>Order ID:</strong> ${orderId}<br>
+                        <strong>Status:</strong> ${status}<br>
+                        <strong>Total:</strong> ₹${total}<br>
+                        <strong>Address:</strong> ${address}<br>
+                        <strong>Products:</strong>
+                        <ul>${products.map(p => `<li>${p.product} (₹${p.price})</li>`).join('')}</ul>
+                        <button onclick="scanningqr('${orderId}', '${total}')">Scan QR Code</button>
+                        <div id="${orderId}" class="card-camera"></div>
+                    </div>
+                `;
+                orderContainer.insertAdjacentHTML('beforeend', orderHTML);
+            }
+        }
+
+        // Display Error
+        function displayError(message) {
+            document.getElementById('error-message').textContent = message;
+        }
+
+        // QR Code Scanning
+        window.scanningqr = function (orderId, totalAmount) {
+            const cameraCard = document.getElementById(`${orderId}`);
+            cameraCard.innerHTML = `
+                <h1>QR Code Scanner</h1>
+                <video id="camera" autoplay playsinline></video>
+                <p id="output">Scanning for QR Code...</p>
+                <div class="success-message">
+                    <h2>Order Successfully Completed!</h2>
+                    <p>Your QR Code has been verified.</p>
+                </div>
+            `;
+
+            let videoStream;
+            const videoElement = document.getElementById('camera');
+            const outputElement = document.getElementById('output');
+            const successMessage = document.querySelector('.success-message');
+            const canvasElement = document.createElement('canvas');
+            const canvasContext = canvasElement.getContext('2d');
+
+            async function startCamera() {
+                try {
+                    videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                    videoElement.srcObject = videoStream;
+
+                    videoElement.addEventListener('loadeddata', () => scanQRCode());
+                } catch (err) {
+                    alert('Error accessing camera: ' + err.message);
+                }
+            }
+
+            function scanQRCode() {
+                if (videoElement.readyState === videoElement.HAVE_ENOUGH_DATA) {
+                    canvasElement.width = videoElement.videoWidth;
+                    canvasElement.height = videoElement.videoHeight;
+                    canvasContext.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+
+                    const imageData = canvasContext.getImageData(0, 0, canvasElement.width, canvasElement.height);
+                    const qrCode = jsQR(imageData.data, canvasElement.width, canvasElement.height);
+
+                    if (qrCode) {
+                        if (qrCode.data === `${orderId}`) {
+                            outputElement.textContent = "";
+                            showSuccessMessage();
+                            stopCamera();
+                            return;
+                        } else {
+                            outputElement.textContent = `QR Code Detected: ${qrCode.data}`;
+                        }
+                    }
+                }
+                requestAnimationFrame(scanQRCode);
+            }
+
+            function showSuccessMessage() {
+                successMessage.style.display = "block";
+            }
+
+            function stopCamera() {
+                if (videoStream) {
+                    videoStream.getTracks().forEach(track => track.stop());
+                }
+                videoElement.srcObject = null;
+            }
+
+            startCamera();
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', fetchAcceptedOrders);
+    </script>
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en"> 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zoloww - Orders</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-title">
+            <img src="logo.png" alt="Zoloww Logo">
+            <h1>Zoloww</h1>
+        </div>
+    </nav>
+
+    <!-- Dashboard Section -->
+    <section id="dashboard">
+        <h2 id="welcomeMessage">
+            Welcome, <span id="userName"></span>!<br>Vehicle: <span id="vehicleType"></span>
+        </h2>
+
+        <div id="locationDisplay">
+            <p><strong>Latitude:</strong> <span id="latitude"></span></p>
+            <p><strong>Longitude:</strong> <span id="longitude"></span></p>
+        </div>
+
+        <h3>Orders within 2km</h3>
+        <div id="order-container"></div>
+        <div id="error-message"></div>
+    </section>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, doc, updateDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD4_h-2b2_IjrfvSKOxHrL9gWotG-SanFo",
+            authDomain: "zolowworder.firebaseapp.com",
+            projectId: "zolowworder",
+            storageBucket: "zolowworder.appspot.com",
+            messagingSenderId: "996982358637",
+            appId: "1:996982358637:web:1adcf03392a68d5c6f3564",
+            measurementId: "G-4L2GTKRRMF"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const userName = localStorage.getItem('userName');
+            const vehicleType = localStorage.getItem('vehicleType');
+            const userEmail = localStorage.getItem('userEmail');
+
+            document.getElementById('userName').textContent = userName;
+            document.getElementById('vehicleType').textContent = vehicleType;
+
+            getLocation();
+
+            function getLocation() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(showPosition, showError);
+                } else {
+                    alert("Geolocation is not supported by this browser.");
+                }
+            }
+
+            function showPosition(position) {
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+
+                document.getElementById('latitude').textContent = latitude;
+                document.getElementById('longitude').textContent = longitude;
+
+                fetchOrders(latitude, longitude);
+            }
+
+            function showError(error) {
+                alert("Error getting location.");
+            }
+
+            async function fetchOrders(userLat, userLon) {
+                const orderContainer = document.getElementById('order-container');
+                orderContainer.innerHTML = '';
+
+                try {
+                    const ordersSnapshot = await getDocs(collection(db, 'orders'));
+                    ordersSnapshot.forEach((doc) => {
+                        const orderData = doc.data();
+                        const distance = calculateDistance(userLat, userLon, orderData.latitude, orderData.longitude);
+                        if (distance <= 2) {
+                            const orderItem = document.createElement('div');
+                            orderItem.innerHTML = `
+                                <strong>Order ID:</strong> ${doc.id} <br>
+                                <button class="acceptBtn" data-id="${doc.id}">Accept Order</button>
+                            `;
+                            orderContainer.appendChild(orderItem);
+                            orderItem.querySelector('.acceptBtn').addEventListener('click', () => acceptOrder(doc.id));
+                        }
+                    });
+                } catch (error) {
+                    console.error(error);
+                    document.getElementById('error-message').textContent = 'Failed to load orders.';
+                }
+            }
+
+            async function acceptOrder(orderId) {
+                try {
+                    const orderRef = doc(db, 'orders', orderId);
+                    const orderDoc = await getDoc(orderRef);
+
+                    if (orderDoc.exists()) {
+                        const orderDetails = orderDoc.data();
+                        const userRef = doc(db, 'deliveryPartners', userEmail);
+
+                        // Update user profile with accepted order
+                        await updateDoc(userRef, {
+                            [`ordersAccepted.${orderId}`]: {
+                                total: orderDetails.total,
+                                address: orderDetails.address,
+                                status: 'Accepted',
+                                latitude: orderDetails.latitude,
+                                longitude: orderDetails.longitude,
+                                orderDate: orderDetails.timestamp || new Date().toISOString(),
+                                deliveryDeadline: orderDetails.deliveryDeadline || 'Not Provided',
+                                products: orderDetails.products || [],
+                            }
+                        });
+
+                        // Update order status
+                        await updateDoc(orderRef, {
+                            status: 'Accepted',
+                            acceptedBy: userEmail,
+                        });
+
+                        // Delete the order from the collection
+                        await deleteDoc(orderRef);
+
+                        alert(`Order ${orderId} accepted successfully!`);
+                        window.location.href = 'accepted.html'; 
+                    } else {
+                        alert('Order not found!');
+                    }
+                } catch (error) {
+                    console.error('Error accepting order:', error);
+                    alert(`Failed to accept the order: ${error.message}`);
+                }
+            }
+
+            function calculateDistance(lat1, lon1, lat2, lon2) {
+                const R = 6371;
+                const dLat = (lat2 - lat1) * Math.PI / 180;
+                const dLon = (lon2 - lon1) * Math.PI / 180;
+                const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                          Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                          Math.sin(dLon / 2) * Math.sin(dLon / 2);
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                return R * c;
+            }
+        });
+    </script>
+</body>
+</html>
