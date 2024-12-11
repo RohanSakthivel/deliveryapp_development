@@ -153,7 +153,7 @@
     <!-- Script Section -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyD4_h-2b2_IjrfvSKOxHrL9gWotG-SanFo",
@@ -215,7 +215,6 @@
                         <strong>Products:</strong>
                         <ul>${products.map(p => `<li>${p.product} (₹${p.price})</li>`).join('')}</ul>
                         <button onclick="scanningqr('${orderId}', '${total}', '${products.map(p => p.product).join(", ")}', '${address}')">Scan QR Code</button>
-                        <div id="camera-container-${orderId}" class="card-camera"></div>
                     </div>
                 `;
                 orderContainer.insertAdjacentHTML('beforeend', orderHTML);
@@ -225,74 +224,6 @@
         function displayError(message) {
             document.getElementById('error-message').textContent = message;
         }
-
-        window.scanningqr = function (orderId, totalAmount, productList, expectedAddress) {
-            const cameraContainer = document.getElementById(`camera-container-${orderId}`);
-            const upiAddress = "skrohanhsr@axl";
-            const recipientName = "Zoloww Delivery";
-            const message = `Orderid: "${orderId} Products: ${productList} Totalamount: ${totalAmount}`;
-            const address = `upi://pay?pa=${upiAddress}&pn=${recipientName}&am=${totalAmount}&cu=INR&tn=${encodeURIComponent(message)}`;
-
-            const paymentContainer = document.getElementById("payment");
-            cameraContainer.appendChild(paymentContainer);
-            QRCode.toCanvas(paymentContainer, address, function (error) {
-                if (error) console.error(error);
-            });
-
-            cameraContainer.innerHTML = `
-                <h1>QR Code Scanner</h1>
-                <video id="camera-${orderId}" autoplay playsinline></video>
-                <p id="output-${orderId}">Scanning for QR Code...</p>
-                <div id="success-message-${orderId}" class="success-message">
-                    <h2>Order Successfully Completed!</h2>
-                    <p>Your QR Code has been verified.</p>
-                    <div id="payment"></div>
-                </div>
-            `;
-
-            const videoElement = document.getElementById(`camera-${orderId}`);
-            const outputElement = document.getElementById(`output-${orderId}`);
-            const successMessage = document.getElementById(`success-message-${orderId}`);
-            const canvasElement = document.createElement('canvas');
-            const canvasContext = canvasElement.getContext('2d');
-            let videoStream;
-
-            async function startCamera() {
-                try {
-                    videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-                    videoElement.srcObject = videoStream;
-                    videoElement.addEventListener('loadeddata', () => scanQRCode());
-                } catch (err) {
-                    alert('Error accessing camera: ' + err.message);
-                }
-            }
-
-            function scanQRCode() {
-                if (videoElement.readyState === videoElement.HAVE_ENOUGH_DATA) {
-                    canvasElement.width = videoElement.videoWidth;
-                    canvasElement.height = videoElement.videoHeight;
-                    canvasContext.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
-
-                    const imageData = canvasContext.getImageData(0, 0, canvasElement.width, canvasElement.height);
-                    const qrCode = jsQR(imageData.data, imageData.width, imageData.height);
-
-                    if (qrCode) {
-                        outputElement.textContent = `Scanned QR Code: ${qrCode.data}`;
-                        successMessage.style.display = 'block';
-
-                        if (videoStream) {
-                            videoStream.getTracks().forEach(track => track.stop());
-                        }
-                    } else {
-                        requestAnimationFrame(scanQRCode);
-                    }
-                } else {
-                    requestAnimationFrame(scanQRCode);
-                }
-            }
-
-            startCamera();
-        };
 
         fetchAcceptedOrders();
     </script>
