@@ -271,31 +271,30 @@
 
                         if (scannedData === orderId) {
                             successMessage.style.display = 'block';
-                            const qrCodeContainer = document.getElementById(`payment-qr-code-${orderId}`);
-                            generatePaymentQRCode(qrCodeContainer, orderId, totalAmount, productList, deliveryDeadline);
-                            stopCamera(videoStream, videoElement);
+                            generatePaymentQRCode(orderId, totalAmount, productList, expectedAddress, deliveryDeadline);
+                        } else {
+                            outputElement.textContent = 'Invalid QR Code. Please scan again.';
                         }
+                    } else {
+                        requestAnimationFrame(scanQRCode);
                     }
+                } else {
+                    requestAnimationFrame(scanQRCode);
                 }
-                requestAnimationFrame(scanQRCode);
-            }
-
-            function stopCamera(videoStream, videoElement) {
-                videoStream.getTracks().forEach(track => track.stop());
-                videoElement.remove();
             }
 
             startCamera();
         };
 
-        function generatePaymentQRCode(container, orderId, amount, productList, deliveryDeadline) {
-            const upiAddress = "skrohanhsr@axl";
-            const recipientName = "Zoloww Delivery";
-            const message = `ORDERID:${orderId},PRODUCTS:${productList},AMOUNT:${amount}`;
-            const qrCodeData = `${upiAddress}?pa=${upiAddress}&pn=${recipientName}&mc=123456&tid=${orderId}&tr=${orderId}&tn=${message}&am=${amount}&cu=INR`;
+        function generatePaymentQRCode(orderId, totalAmount, productList, expectedAddress, deliveryDeadline) {
+            const qrCodeContainer = document.getElementById(`payment-qr-code-${orderId}`);
+            const recipientName = 'Zoloww';
+            const upiAddress = 'example@upi';  // Use actual UPI address
+            const message = `Order ID: ${orderId}\nTotal: ₹${totalAmount}\nProducts: ${productList}\nAddress: ${expectedAddress}\nDeadline: ${deliveryDeadline}`;
+            const qrCodeData = `${upiAddress}?pa=${upiAddress}&pn=${recipientName}&mc=123456&tid=${orderId}&tr=${orderId}&tn=${message}&am=${totalAmount}&cu=INR`;
 
-            container.innerHTML = '';
-            QRCode.toCanvas(container, qrCodeData, function (error) {
+            qrCodeContainer.innerHTML = '';
+            QRCode.toCanvas(qrCodeContainer, qrCodeData, function (error) {
                 if (error) {
                     console.error('Error generating QR code:', error);
                 }
@@ -303,7 +302,6 @@
         }
 
         window.redirectToPaymentPage = function (orderId) {
-            // Redirect to the payment page
             window.location.href = `/payment.html?orderId=${orderId}`;
         }
 
