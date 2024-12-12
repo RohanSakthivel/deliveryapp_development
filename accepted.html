@@ -246,6 +246,7 @@
                 <div id="success-message-${orderId}" class="success-message">
                     <h2>Order Successfully Completed!</h2>
                     <p>Your QR Code has been verified.</p>
+                    <div id="payment-qr-code-${orderId}" class="qr-code-container"></div>
                 </div>
                 <div id="error-message-${orderId}" class="success-message" style="color: red;"></div>
             `;
@@ -254,6 +255,7 @@
             const outputElement = document.getElementById(`output-${orderId}`);
             const successMessage = document.getElementById(`success-message-${orderId}`);
             const errorMessage = document.getElementById(`error-message-${orderId}`);
+            const paymentQrCodeContainer = document.getElementById(`payment-qr-code-${orderId}`);
             const canvasElement = document.createElement('canvas');
             const canvasContext = canvasElement.getContext('2d');
             let videoStream;
@@ -278,25 +280,18 @@
                     const qrCode = jsQR(imageData.data, imageData.width, imageData.height);
 
                     if (qrCode) {
-                        outputElement.textContent = `Scanned QR Code: ${qrCode.data}`;
+                        const scannedData = qrCode.data;
+                        outputElement.textContent = `QR Code Data: ${scannedData}`;
 
-                        if (qrCode.data.includes(orderId)) {
+                        if (scannedData.includes(orderId)) {
                             successMessage.style.display = 'block';
-                            errorMessage.style.display = 'none';
-
-                            if (videoStream) {
-                                videoStream.getTracks().forEach(track => track.stop());
-                            }
+                            paymentQrCodeContainer.style.display = 'block';
                         } else {
-                            errorMessage.textContent = "Error: Order ID does not match!";
-                            successMessage.style.display = 'none';
+                            errorMessage.textContent = 'QR Code mismatch. Please try again.';
                         }
-                    } else {
-                        requestAnimationFrame(scanQRCode);
                     }
-                } else {
-                    requestAnimationFrame(scanQRCode);
                 }
+                requestAnimationFrame(scanQRCode);
             }
 
             startCamera();
@@ -307,4 +302,3 @@
 </body>
 
 </html>
-
