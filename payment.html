@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Page - Zoloww</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+</head>
+
+<body>
+    <div style="text-align:center; padding: 20px;">
+        <h2>Complete Your Payment</h2>
+        <div id="payment-qr-code-container">
+            <!-- The payment QR code will be generated here -->
+        </div>
+        <p>Please scan the QR code to complete your payment.</p>
+    </div>
+
+    <script>
+        // Get orderId from the URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const orderId = urlParams.get('orderId');
+
+        // Generate payment QR code
+        if (orderId) {
+            const container = document.getElementById('payment-qr-code-container');
+            const paymentLink = `https://your-payment-link.com?orderId=${orderId}`;
+
+            QRCode.toDataURL(paymentLink, {
+                width: 200,
+                margin: 1
+            }).then(url => {
+                container.innerHTML = `<img src="${url}" alt="Payment QR Code">`;
+            });
+        }
+    </script>
+</body>
+
+</html>
