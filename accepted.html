@@ -270,7 +270,7 @@
                         if (scannedData === orderId) {
                             successMessage.style.display = 'block';
                             const qrCodeContainer = document.getElementById(`payment-qr-code-${orderId}`);
-                            generatePaymentQRCode(qrCodeContainer, orderId, totalAmount);
+                            generatePaymentQRCode(qrCodeContainer, orderId, totalAmount, productList);
                         } else {
                             outputElement.textContent = 'QR Code mismatch. Please try again.';
                         }
@@ -282,8 +282,13 @@
             startCamera();
         };
 
-        function generatePaymentQRCode(container, orderId, amount) {
-            QRCode.toDataURL(`https://your-payment-link.com?orderId=${orderId}&amount=${amount}`, {
+        function generatePaymentQRCode(container, orderId, amount, productList) {
+            const upiAddress = "skrohanhsr@axl";
+            const recipientName = "Zoloww Delivery";
+            const message = `ORDERID:${orderId}
+                             PRODUCTS:${productList}
+                             AMOUNT:${amount}`;
+            QRCode.toDataURL(`upi://pay?pa=${upiAddress}&pn=${recipientName}&am=${amount}&cu=INR&tn=${encodeURIComponent(message)}`, {
                 width: 200,
                 margin: 1
             }).then(url => {
