@@ -280,50 +280,45 @@
                 requestAnimationFrame(scanQRCode);
             }
 
+            function stopCamera(videoStream, videoElement) {
+                videoStream.getTracks().forEach(track => track.stop());
+                videoElement.remove();
+            }
+
             startCamera();
         };
 
-        function generatePaymentQRCode(container, orderId, amount, productList,deliveryDeadline) {
-            const upiAddress = "skrohanhsr@axl";
-            const recipientName = "Zoloww Delivery";
-            const message = `ORDERID:${orderId},PRODUCTS:${productList},AMOUNT:${amount}`;
-            QRCode.toDataURL(`upi://pay?pa=${upiAddress}&pn=${recipientName}&am=${amount}&cu=INR&tn=${encodeURIComponent(message)}`, {
-                width: 200,
-                margin: 1
-            }).then(url => {
-                container.innerHTML = `<img src="${url}" alt="Payment QR Code">
-                                        <button onclick="deliveryupdate(${deliveryDeadline},${orderId})">deliverd</button>`;
-                container.style.display = 'block';
+        function generatePaymentQRCode(container, orderId, totalAmount, productList, deliveryDeadline) {
+            const qrData = {
+                orderId,
+                totalAmount,
+                productList,
+                deliveryDeadline
+            };
+            QRCode.toCanvas(container, JSON.stringify(qrData), function (error) {
+                if (error) console.error(error);
             });
-            function deliveryupdate(updates,orderId){
-            updateDoc(orderRef, {deliveryDeadline: "Provided"})
-
-        }
         }
 
-        function stopCamera(stream, videoElement) {
-            stream.getTracks().forEach(track => track.stop());
-            videoElement.srcObject = null;
+        function redirectToPaymentPage(orderId) {
+            window.location.href = `/payment/${orderId}`;
         }
 
-        async function markAsDelivered(email, orderId, deadline) {
-            try {
-                const userRef = doc(db, 'deliveryPartners', email);
-                const userDoc = await getDoc(userRef);
-                if (userDoc.exists()) {
-                    const ordersAccepted = userDoc.data().ordersAccepted || {};
-                    if (ordersAccepted[orderId]) {
-                        ordersAccepted[orderId].status = 'Delivered';
-                        await updateDoc(userRef, { ordersAccepted });
-                        alert(`Order ${orderId} marked as delivered successfully.`);
-                    }
-                }
-            } catch (error) {
-                console.error("Error marking order as delivered:", error);
-            }
-        }
+        window.markAsDelivered = function (userEmail, orderId, deliveryDeadline) {
+            const orderRef = doc(db, 'deliveryPartners', userEmail);
 
-        fetchAcceptedOrders();
+            updateDoc(orderRef, {
+                [`ordersAccepted.${orderId}.status`]: "Delivered",
+                [`ordersAccepted.${orderId}.deliveredAt`]: new Date().toISOString(),
+            }).then(() => {
+                alert(`Order ${orderId} marked as delivered!`);
+                location.reload();
+            }).catch(error => {
+                console.error("Error updating order: ", error);
+            });
+        };
+
+        window.onload = fetchAcceptedOrders;
     </script>
 </body>
 
