@@ -271,58 +271,56 @@
 
                         if (scannedData === orderId) {
                             successMessage.style.display = 'block';
-                            generatePaymentQRCode(orderId, totalAmount, productList, expectedAddress, deliveryDeadline);
-                        } else {
-                            outputElement.textContent = 'Invalid QR Code. Please scan again.';
+                            const qrCodeContainer = document.getElementById(`payment-qr-code-${orderId}`);
+                            generatePaymentQRCode(qrCodeContainer, orderId, totalAmount, productList,deliveryDeadline);
+                            stopCamera(videoStream, videoElement);
                         }
-                    } else {
-                        requestAnimationFrame(scanQRCode);
                     }
-                } else {
-                    requestAnimationFrame(scanQRCode);
                 }
+                requestAnimationFrame(scanQRCode);
+            }
+
+            function stopCamera(videoStream, videoElement) {
+                videoStream.getTracks().forEach(track => track.stop());
+                videoElement.remove();
             }
 
             startCamera();
         };
 
-        function generatePaymentQRCode(orderId, totalAmount, productList, expectedAddress, deliveryDeadline) {
-            const qrCodeContainer = document.getElementById(`payment-qr-code-${orderId}`);
-            const recipientName = 'Zoloww';
-            const upiAddress = 'example@upi';  // Use actual UPI address
-            const message = `Order ID: ${orderId}\nTotal: ₹${totalAmount}\nProducts: ${productList}\nAddress: ${expectedAddress}\nDeadline: ${deliveryDeadline}`;
-            const qrCodeData = `${upiAddress}?pa=${upiAddress}&pn=${recipientName}&mc=123456&tid=${orderId}&tr=${orderId}&tn=${message}&am=${totalAmount}&cu=INR`;
-
-            qrCodeContainer.innerHTML = '';
-            QRCode.toCanvas(qrCodeContainer, qrCodeData, function (error) {
-                if (error) {
-                    console.error('Error generating QR code:', error);
-                }
+        function generatePaymentQRCode(container, orderId, amount, productList,deliveryDeadline) {
+            const upiAddress = "skrohanhsr@axl";
+            const recipientName = "Zoloww Delivery";
+            const message = `ORDERID:${orderId},PRODUCTS:${productList},AMOUNT:${amount}`;
+            QRCode.toDataURL(`upi://pay?pa=${upiAddress}&pn=${recipientName}&am=${amount}&cu=INR&tn=${encodeURIComponent(message)}`, {
+                width: 200,
+                margin: 1
+            }).then(url => {
+                container.innerHTML = `<img src="${url}" alt="Payment QR Code">
+                                        <button onclick="deliveryupdate(${deliveryDeadline},${orderId})">deliverd</button>`;
+                container.style.display = 'block';
             });
         }
 
-        window.redirectToPaymentPage = function (orderId) {
-            window.location.href = `/payment.html?orderId=${orderId}`;
+        function redirectToPaymentPage(orderId) {
+            window.location.href = `/payment/${orderId}`;
         }
 
-        window.markAsDelivered = async function (userEmail, orderId, deliveryDeadline) {
-            try {
-                const userRef = doc(db, 'deliveryPartners', userEmail);
-                const userDoc = await getDoc(userRef);
-                if (userDoc.exists()) {
-                    const ordersAccepted = userDoc.data().ordersAccepted || {};
-                    if (ordersAccepted[orderId]) {
-                        ordersAccepted[orderId].status = "Delivered";
-                        await updateDoc(userRef, { ordersAccepted });
-                        alert('Order marked as delivered.');
-                    }
-                }
-            } catch (error) {
-                console.error('Error marking order as delivered:', error);
-            }
+        window.markAsDelivered = function (userEmail, orderId, deliveryDeadline) {
+            const orderRef = doc(db, 'deliveryPartners', userEmail);
+
+            updateDoc(orderRef, {
+                [`ordersAccepted.${orderId}.status`]: "Delivered",
+                [`ordersAccepted.${orderId}.deliveredAt`]: new Date().toISOString(),
+            }).then(() => {
+                alert(`Order ${orderId} marked as delivered!`);
+                location.reload();
+            }).catch(error => {
+                console.error("Error updating order: ", error);
+            });
         };
 
-        fetchAcceptedOrders();
+        window.onload = fetchAcceptedOrders;
     </script>
 </body>
 
