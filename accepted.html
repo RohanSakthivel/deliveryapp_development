@@ -200,22 +200,23 @@
             const orderContainer = document.getElementById('order-container');
             orderContainer.innerHTML = '';
             for (const [orderId, details] of Object.entries(orders)) {
-                const { total = "0", address = "N/A", status = "N/A", products = [],deliveryDeadline ="N/A" } = details;
+                const { total = "0", address = "N/A", status = "N/A", products = [], deliveryDeadline = "N/A" } = details;
                 const orderHTML = `
                     <div class="order-item">
                         <strong>Order ID:</strong> ${orderId}<br>
                         <strong>Status:</strong> ${status}<br>
                         <strong>Total:</strong> ₹${total}<br>
-                        <strong>deliveryDeadline:</strong> ₹${deliveryDeadline}<br>
+                        <strong>Delivery Deadline:</strong> ₹${deliveryDeadline}<br>
                         <strong>Address:</strong> ${address}<br>
                         <strong>Products:</strong>
                         <ul>${products.map(p => `<li>${p.product} (₹${p.price})</li>`).join('')}</ul>
-                        <button onclick="scanningqr('${orderId}', '${total}', '${products.map(p => p.product).join(", ")}', '${address}',${deliveryDeadline})">Scan QR Code</button>
+                        <button onclick="scanningqr('${orderId}', '${total}', '${products.map(p => p.product).join(", ")}', '${address}', '${deliveryDeadline}')">Scan QR Code</button>
                         <div id="camera-container-${orderId}" class="card-camera"></div>
                         <div id="payment-qr-code-${orderId}" class="qr-code-container"></div>
                         <div id="success-message-${orderId}" class="success-message">
                             <h2>Order Successfully Completed!</h2>
                             <button onclick="redirectToPaymentPage('${orderId}')">Proceed to Payment</button>
+                            <button onclick="markAsDelivered('${localStorage.getItem('userEmail')}', '${orderId}', '${deliveryDeadline}')">Mark as Delivered</button>
                         </div>
                     </div>
                 `;
@@ -227,7 +228,7 @@
             document.getElementById('error-message').textContent = message;
         }
 
-        window.scanningqr = function (orderId, totalAmount, productList, expectedAddress,deliveryDeadline) {
+        window.scanningqr = function (orderId, totalAmount, productList, expectedAddress, deliveryDeadline) {
             const cameraContainer = document.getElementById(`camera-container-${orderId}`);
             const outputElement = document.createElement('p');
             const successMessage = document.getElementById(`success-message-${orderId}`);
@@ -271,10 +272,8 @@
                         if (scannedData === orderId) {
                             successMessage.style.display = 'block';
                             const qrCodeContainer = document.getElementById(`payment-qr-code-${orderId}`);
-                            generatePaymentQRCode(qrCodeContainer, orderId, totalAmount, productList,deliveryDeadline);
+                            generatePaymentQRCode(qrCodeContainer, orderId, totalAmount, productList, deliveryDeadline);
                             stopCamera(videoStream, videoElement);
-                        } else {
-                            outputElement.textContent = 'QR Code mismatch. Please try again.';
                         }
                     }
                 }
@@ -283,12 +282,6 @@
 
             startCamera();
         };
-
-        function stopCamera(stream, videoElement) {
-            const tracks = stream.getTracks();
-            tracks.forEach(track => track.stop());
-            videoElement.srcObject = null;
-        }
 
         function generatePaymentQRCode(container, orderId, amount, productList,deliveryDeadline) {
             const upiAddress = "skrohanhsr@axl";
@@ -302,59 +295,32 @@
                                         <button onclick="deliveryupdate(${deliveryDeadline},${orderId})">deliverd</button>`;
                 container.style.display = 'block';
             });
+            function deliveryupdate(updates,orderId){
+            updateDoc(orderRef, {deliveryDeadline: "Provided"})
+
         }
-        
-        function deliveryupdate(updates, orderId) {
-    const successMessage = document.getElementById(`success-message-${orderId}`);
-    const paymentQRContainer = document.getElementById(`payment-qr-code-${orderId}`);
-    
-    // Updating the deliveryDeadline in the Firestore database
-    const userEmail = localStorage.getItem('userEmail');
-    
-    if (!userEmail) {
-        alert("User email not found. Redirecting to login...");
-        setTimeout(() => window.location.href = '/login.html', 3000);
-        return;
-    }
+        }
 
-    const userRef = doc(db, 'deliveryPartners', userEmail);
-    
-    getDoc(userRef).then((userDoc) => {
-        if (userDoc.exists()) {
-            const acceptedOrders = userDoc.data().ordersAccepted;
-            if (acceptedOrders && acceptedOrders[orderId]) {
-                const orderRef = doc(db, 'deliveryPartners', userEmail, 'ordersAccepted', orderId);
+        function stopCamera(stream, videoElement) {
+            stream.getTracks().forEach(track => track.stop());
+            videoElement.srcObject = null;
+        }
 
-                // Update the deliveryDeadline field
-                updateDoc(orderRef, {
-                    deliveryDeadline: "Provided"
-                }).then(() => {
-                    // Show success message after update
-                    successMessage.innerHTML = "<h2>Order Successfully Delivered!</h2>";
-                    successMessage.style.display = 'block';
-                    alert("Order payment will be verified within 24 hours");
-                }).catch((error) => {
-                    console.error("Error updating delivery deadline:", error);
-                    alert("Failed to update delivery status. Please try again later.");
-                });
-            } else {
-                alert("Order not found in accepted orders.");
+        async function markAsDelivered(email, orderId, deadline) {
+            try {
+                const userRef = doc(db, 'deliveryPartners', email);
+                const userDoc = await getDoc(userRef);
+                if (userDoc.exists()) {
+                    const ordersAccepted = userDoc.data().ordersAccepted || {};
+                    if (ordersAccepted[orderId]) {
+                        ordersAccepted[orderId].status = 'Delivered';
+                        await updateDoc(userRef, { ordersAccepted });
+                        alert(`Order ${orderId} marked as delivered successfully.`);
+                    }
+                }
+            } catch (error) {
+                console.error("Error marking order as delivered:", error);
             }
-        } else {
-            alert("User profile not found.");
-        }
-    }).catch((error) => {
-        console.error("Error fetching user data:", error);
-        alert("Failed to retrieve user data. Please try again later.");
-    });
-
-    // Hide the QR code section
-    paymentQRContainer.style.display = 'none';
-}
-
-
-        function redirectToPaymentPage(orderId) {
-            window.location.href = `payment.html?orderId=${orderId}`;
         }
 
         fetchAcceptedOrders();
