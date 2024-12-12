@@ -200,7 +200,7 @@
             const orderContainer = document.getElementById('order-container');
             orderContainer.innerHTML = '';
             for (const [orderId, details] of Object.entries(orders)) {
-                const { total = "0", address = "N/A", status = "N/A", products = [] } = details;
+                const { total = "0", address = "N/A", status = "N/A", products = [],deliveryDeadline ="N/A" } = details;
                 const orderHTML = `
                     <div class="order-item">
                         <strong>Order ID:</strong> ${orderId}<br>
