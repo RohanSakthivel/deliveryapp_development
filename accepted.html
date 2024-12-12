@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 
 <head>
@@ -233,7 +233,7 @@
             const message = `Orderid: "${orderId} Products: ${productList} Totalamount: ${totalAmount}`;
             const address = `upi://pay?pa=${upiAddress}&pn=${recipientName}&am=${totalAmount}&cu=INR&tn=${encodeURIComponent(message)}`;
 
-            const paymentContainer = document.getElementById(`success-message-${orderId}`);
+            const paymentContainer = document.createElement('div');
             cameraContainer.appendChild(paymentContainer);
             QRCode.toCanvas(paymentContainer, address, function (error) {
                 if (error) console.error(error);
@@ -266,7 +266,7 @@
                 }
             }
 
-            function scanQRCode(orderId) {
+            function scanQRCode() {
                 if (videoElement.readyState === videoElement.HAVE_ENOUGH_DATA) {
                     canvasElement.width = videoElement.videoWidth;
                     canvasElement.height = videoElement.videoHeight;
@@ -275,7 +275,7 @@
                     const imageData = canvasContext.getImageData(0, 0, canvasElement.width, canvasElement.height);
                     const qrCode = jsQR(imageData.data, imageData.width, imageData.height);
 
-                    if (qrCode === orderId.data) {
+                    if (qrCode) {
                         outputElement.textContent = `Scanned QR Code: ${qrCode.data}`;
                         successMessage.style.display = 'block';
 
