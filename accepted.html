@@ -272,12 +272,10 @@
 
             function scanQRCode() {
                 if (videoElement.readyState === videoElement.HAVE_ENOUGH_DATA) {
-                    canvasElement.width = videoElement.videoWidth;
                     canvasElement.height = videoElement.videoHeight;
+                    canvasElement.width = videoElement.videoWidth;
                     canvasContext.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
-
-                    const imageData = canvasContext.getImageData(0, 0, canvasElement.width, canvasElement.height);
-                    const qrCode = jsQR(imageData.data, imageData.width, imageData.height);
+                    const qrCode = jsQR(canvasContext.getImageData(0, 0, canvasElement.width, canvasElement.height).data, canvasElement.width, canvasElement.height);
 
                     if (qrCode) {
                         const scannedData = qrCode.data;
@@ -286,6 +284,9 @@
                         if (scannedData.includes(orderId)) {
                             successMessage.style.display = 'block';
                             paymentQrCodeContainer.style.display = 'block';
+                            QRCode.toCanvas(paymentQrCodeContainer, address, function (error) {
+                                if (error) console.error(error);
+                            });
                         } else {
                             errorMessage.textContent = 'QR Code mismatch. Please try again.';
                         }
