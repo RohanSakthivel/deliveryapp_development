@@ -271,6 +271,7 @@
                             successMessage.style.display = 'block';
                             const qrCodeContainer = document.getElementById(`payment-qr-code-${orderId}`);
                             generatePaymentQRCode(qrCodeContainer, orderId, totalAmount, productList);
+                            stopCamera(videoStream, videoElement);
                         } else {
                             outputElement.textContent = 'QR Code mismatch. Please try again.';
                         }
@@ -281,6 +282,12 @@
 
             startCamera();
         };
+
+        function stopCamera(stream, videoElement) {
+            const tracks = stream.getTracks();
+            tracks.forEach(track => track.stop());
+            videoElement.srcObject = null;
+        }
 
         function generatePaymentQRCode(container, orderId, amount, productList) {
             const upiAddress = "skrohanhsr@axl";
