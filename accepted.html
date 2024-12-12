@@ -88,6 +88,19 @@
             text-align: center;
         }
 
+        .success-message {
+            display: none;
+            text-align: center;
+            color: #28a745;
+            margin-top: 20px;
+        }
+
+        .qr-code-container {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
         @media (max-width: 600px) {
             .order-item {
                 font-size: 14px;
@@ -113,23 +126,6 @@
         canvas {
             display: none;
         }
-
-        .success-message {
-            display: none;
-            text-align: center;
-            color: #28a745;
-            margin-top: 20px;
-        }
-
-        .qr-code-container {
-            display: none;
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .qr-code {
-            margin-top: 10px;
-        }
     </style>
 </head>
 
@@ -147,7 +143,6 @@
         <h2>Accepted Orders</h2>
         <div id="order-container"></div>
         <div id="error-message"></div>
-        <div id="qrcode" style="margin-top: 20px;"></div>
     </section>
 
     <!-- Script Section -->
@@ -216,6 +211,11 @@
                         <ul>${products.map(p => `<li>${p.product} (₹${p.price})</li>`).join('')}</ul>
                         <button onclick="scanningqr('${orderId}', '${total}', '${products.map(p => p.product).join(", ")}', '${address}')">Scan QR Code</button>
                         <div id="camera-container-${orderId}" class="card-camera"></div>
+                        <div id="payment-qr-code-${orderId}" class="qr-code-container"></div>
+                        <div id="success-message-${orderId}" class="success-message">
+                            <h2>Order Successfully Completed!</h2>
+                            <button onclick="redirectToPaymentPage('${orderId}')">Proceed to Payment</button>
+                        </div>
                     </div>
                 `;
                 orderContainer.insertAdjacentHTML('beforeend', orderHTML);
@@ -228,52 +228,38 @@
 
         window.scanningqr = function (orderId, totalAmount, productList, expectedAddress) {
             const cameraContainer = document.getElementById(`camera-container-${orderId}`);
-            const upiAddress = "skrohanhsr@axl";
-            const recipientName = "Zoloww Delivery";
-            const message = `Orderid: "${orderId} Products: ${productList} Totalamount: ${totalAmount}`;
-            const address = `upi://pay?pa=${upiAddress}&pn=${recipientName}&am=${totalAmount}&cu=INR&tn=${encodeURIComponent(message)}`;
-
-            const paymentContainer = document.createElement('div');
-            cameraContainer.appendChild(paymentContainer);
-            QRCode.toCanvas(paymentContainer, address, function (error) {
-                if (error) console.error(error);
-            });
-
-            cameraContainer.innerHTML = `
-                <h1>QR Code Scanner</h1>
-                <video id="camera-${orderId}" autoplay playsinline></video>
-                <p id="output-${orderId}">Scanning for QR Code...</p>
-                <div id="success-message-${orderId}" class="success-message">
-                    <h2>Order Successfully Completed!</h2>
-                    <p>Your QR Code has been verified.</p>
-                    <div id="payment-qr-code-${orderId}" class="qr-code-container"></div>
-                </div>
-                <div id="error-message-${orderId}" class="success-message" style="color: red;"></div>
-            `;
-
-            const videoElement = document.getElementById(`camera-${orderId}`);
-            const outputElement = document.getElementById(`output-${orderId}`);
+            const outputElement = document.createElement('p');
             const successMessage = document.getElementById(`success-message-${orderId}`);
-            const errorMessage = document.getElementById(`error-message-${orderId}`);
-            const paymentQrCodeContainer = document.getElementById(`payment-qr-code-${orderId}`);
+            cameraContainer.innerHTML = '';
+            cameraContainer.appendChild(outputElement);
+            outputElement.textContent = 'Scanning for QR Code...';
+
+            const videoElement = document.createElement('video');
+            cameraContainer.appendChild(videoElement);
+
             const canvasElement = document.createElement('canvas');
             const canvasContext = canvasElement.getContext('2d');
+            videoElement.setAttribute('playsinline', true);
+            videoElement.setAttribute('autoplay', true);
+
             let videoStream;
 
             async function startCamera() {
                 try {
                     videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
                     videoElement.srcObject = videoStream;
-                    videoElement.addEventListener('loadeddata', () => scanQRCode());
-                } catch (err) {
-                    alert('Error accessing camera: ' + err.message);
+                    videoElement.play();
+                    scanQRCode();
+                } catch (error) {
+                    console.error('Error accessing camera:', error);
+                    outputElement.textContent = 'Failed to access camera. Please try again.';
                 }
             }
 
             function scanQRCode() {
-                if (videoElement.readyState === videoElement.HAVE_ENOUGH_DATA) {
-                    canvasElement.height = videoElement.videoHeight;
+                if (videoElement.videoWidth > 0 && videoElement.videoHeight > 0) {
                     canvasElement.width = videoElement.videoWidth;
+                    canvasElement.height = videoElement.videoHeight;
                     canvasContext.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
                     const qrCode = jsQR(canvasContext.getImageData(0, 0, canvasElement.width, canvasElement.height).data, canvasElement.width, canvasElement.height);
 
@@ -281,14 +267,12 @@
                         const scannedData = qrCode.data;
                         outputElement.textContent = `QR Code Data: ${scannedData}`;
 
-                        if (scannedData.includes(orderId)) {
+                        if (scannedData === orderId) {
                             successMessage.style.display = 'block';
-                            paymentQrCodeContainer.style.display = 'block';
-                            QRCode.toCanvas(paymentQrCodeContainer, address, function (error) {
-                                if (error) console.error(error);
-                            });
+                            const qrCodeContainer = document.getElementById(`payment-qr-code-${orderId}`);
+                            generatePaymentQRCode(qrCodeContainer, orderId, totalAmount);
                         } else {
-                            errorMessage.textContent = 'QR Code mismatch. Please try again.';
+                            outputElement.textContent = 'QR Code mismatch. Please try again.';
                         }
                     }
                 }
@@ -297,6 +281,20 @@
 
             startCamera();
         };
+
+        function generatePaymentQRCode(container, orderId, amount) {
+            QRCode.toDataURL(`https://your-payment-link.com?orderId=${orderId}&amount=${amount}`, {
+                width: 200,
+                margin: 1
+            }).then(url => {
+                container.innerHTML = `<img src="${url}" alt="Payment QR Code">`;
+                container.style.display = 'block';
+            });
+        }
+
+        function redirectToPaymentPage(orderId) {
+            window.location.href = `payment.html?orderId=${orderId}`;
+        }
 
         fetchAcceptedOrders();
     </script>
