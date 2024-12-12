@@ -288,15 +288,17 @@
             startCamera();
         };
 
-        function generatePaymentQRCode(container, orderId, totalAmount, productList, deliveryDeadline) {
-            const qrData = {
-                orderId,
-                totalAmount,
-                productList,
-                deliveryDeadline
-            };
-            QRCode.toCanvas(container, JSON.stringify(qrData), function (error) {
-                if (error) console.error(error);
+        function generatePaymentQRCode(container, orderId, amount, productList,deliveryDeadline) {
+            const upiAddress = "skrohanhsr@axl";
+            const recipientName = "Zoloww Delivery";
+            const message = `ORDERID:${orderId},PRODUCTS:${productList},AMOUNT:${amount}`;
+            QRCode.toDataURL(`upi://pay?pa=${upiAddress}&pn=${recipientName}&am=${amount}&cu=INR&tn=${encodeURIComponent(message)}`, {
+                width: 200,
+                margin: 1
+            }).then(url => {
+                container.innerHTML = `<img src="${url}" alt="Payment QR Code">
+                                        <button onclick="deliveryupdate(${deliveryDeadline},${orderId})">deliverd</button>`;
+                container.style.display = 'block';
             });
         }
 
