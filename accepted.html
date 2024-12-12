@@ -200,23 +200,22 @@
             const orderContainer = document.getElementById('order-container');
             orderContainer.innerHTML = '';
             for (const [orderId, details] of Object.entries(orders)) {
-                const { total = "0", address = "N/A", status = "N/A", products = [], deliveryDeadline = "N/A" } = details;
+                const { total = "0", address = "N/A", status = "N/A", products = [],deliveryDeadline ="N/A" } = details;
                 const orderHTML = `
                     <div class="order-item">
                         <strong>Order ID:</strong> ${orderId}<br>
                         <strong>Status:</strong> ${status}<br>
                         <strong>Total:</strong> ₹${total}<br>
-                        <strong>Delivery Deadline:</strong> ₹${deliveryDeadline}<br>
+                        <strong>deliveryDeadline:</strong> ₹${deliveryDeadline}<br>
                         <strong>Address:</strong> ${address}<br>
                         <strong>Products:</strong>
                         <ul>${products.map(p => `<li>${p.product} (₹${p.price})</li>`).join('')}</ul>
-                        <button onclick="scanningqr('${orderId}', '${total}', '${products.map(p => p.product).join(", ")}', '${address}', '${deliveryDeadline}')">Scan QR Code</button>
+                        <button onclick="scanningqr('${orderId}', '${total}', '${products.map(p => p.product).join(", ")}', '${address}',${deliveryDeadline})">Scan QR Code</button>
                         <div id="camera-container-${orderId}" class="card-camera"></div>
                         <div id="payment-qr-code-${orderId}" class="qr-code-container"></div>
                         <div id="success-message-${orderId}" class="success-message">
                             <h2>Order Successfully Completed!</h2>
                             <button onclick="redirectToPaymentPage('${orderId}')">Proceed to Payment</button>
-                            <button onclick="markAsDelivered('${localStorage.getItem('userEmail')}', '${orderId}', '${deliveryDeadline}')">Mark as Delivered</button>
                         </div>
                     </div>
                 `;
@@ -228,7 +227,7 @@
             document.getElementById('error-message').textContent = message;
         }
 
-        window.scanningqr = function (orderId, totalAmount, productList, expectedAddress, deliveryDeadline) {
+        window.scanningqr = function (orderId, totalAmount, productList, expectedAddress,deliveryDeadline) {
             const cameraContainer = document.getElementById(`camera-container-${orderId}`);
             const outputElement = document.createElement('p');
             const successMessage = document.getElementById(`success-message-${orderId}`);
@@ -271,56 +270,48 @@
 
                         if (scannedData === orderId) {
                             successMessage.style.display = 'block';
-                            generatePaymentQRCode(orderId, totalAmount, productList, expectedAddress, deliveryDeadline);
+                            const qrCodeContainer = document.getElementById(`payment-qr-code-${orderId}`);
+                            generatePaymentQRCode(qrCodeContainer, orderId, totalAmount, productList,deliveryDeadline);
+                            stopCamera(videoStream, videoElement);
                         } else {
-                            outputElement.textContent = 'Invalid QR Code. Please scan again.';
+                            outputElement.textContent = 'QR Code mismatch. Please try again.';
                         }
-                    } else {
-                        requestAnimationFrame(scanQRCode);
                     }
-                } else {
-                    requestAnimationFrame(scanQRCode);
                 }
+                requestAnimationFrame(scanQRCode);
             }
 
             startCamera();
         };
 
-        function generatePaymentQRCode(orderId, totalAmount, productList, expectedAddress, deliveryDeadline) {
-            const qrCodeContainer = document.getElementById(`payment-qr-code-${orderId}`);
-            const recipientName = 'Zoloww';
-            const upiAddress = 'example@upi';  // Use actual UPI address
-            const message = `Order ID: ${orderId}\nTotal: ₹${totalAmount}\nProducts: ${productList}\nAddress: ${expectedAddress}\nDeadline: ${deliveryDeadline}`;
-            const qrCodeData = `${upiAddress}?pa=${upiAddress}&pn=${recipientName}&mc=123456&tid=${orderId}&tr=${orderId}&tn=${message}&am=${totalAmount}&cu=INR`;
+        function stopCamera(stream, videoElement) {
+            const tracks = stream.getTracks();
+            tracks.forEach(track => track.stop());
+            videoElement.srcObject = null;
+        }
 
-            qrCodeContainer.innerHTML = '';
-            QRCode.toCanvas(qrCodeContainer, qrCodeData, function (error) {
-                if (error) {
-                    console.error('Error generating QR code:', error);
-                }
+        function generatePaymentQRCode(container, orderId, amount, productList,deliveryDeadline) {
+            const upiAddress = "skrohanhsr@axl";
+            const recipientName = "Zoloww Delivery";
+            const message = `ORDERID:${orderId},PRODUCTS:${productList},AMOUNT:${amount}`;
+            QRCode.toDataURL(`upi://pay?pa=${upiAddress}&pn=${recipientName}&am=${amount}&cu=INR&tn=${encodeURIComponent(message)}`, {
+                width: 200,
+                margin: 1
+            }).then(url => {
+                container.innerHTML = `<img src="${url}" alt="Payment QR Code">
+                                        <button onclick="deliveryupdate(${deliveryDeadline},${orderId})">deliverd</button>`;
+                container.style.display = 'block';
             });
         }
+        
+        function deliveryupdate(updates,orderId){
+            //i want write a function for delivery when he click it in db deliveryDeadline: Not Provided should be convert into this deliveryDeadline: Provided after this i want "order payment will be verified within 24 h"
 
-        window.redirectToPaymentPage = function (orderId) {
-            window.location.href = `/payment.html?orderId=${orderId}`;
         }
 
-        window.markAsDelivered = async function (userEmail, orderId, deliveryDeadline) {
-            try {
-                const userRef = doc(db, 'deliveryPartners', userEmail);
-                const userDoc = await getDoc(userRef);
-                if (userDoc.exists()) {
-                    const ordersAccepted = userDoc.data().ordersAccepted || {};
-                    if (ordersAccepted[orderId]) {
-                        ordersAccepted[orderId].status = "Delivered";
-                        await updateDoc(userRef, { ordersAccepted });
-                        alert('Order marked as delivered.');
-                    }
-                }
-            } catch (error) {
-                console.error('Error marking order as delivered:', error);
-            }
-        };
+        function redirectToPaymentPage(orderId) {
+            window.location.href = `payment.html?orderId=${orderId}`;
+        }
 
         fetchAcceptedOrders();
     </script>
