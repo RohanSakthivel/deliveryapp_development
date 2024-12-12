@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -247,11 +247,13 @@
                     <h2>Order Successfully Completed!</h2>
                     <p>Your QR Code has been verified.</p>
                 </div>
+                <div id="error-message-${orderId}" class="success-message" style="color: red;"></div>
             `;
 
             const videoElement = document.getElementById(`camera-${orderId}`);
             const outputElement = document.getElementById(`output-${orderId}`);
             const successMessage = document.getElementById(`success-message-${orderId}`);
+            const errorMessage = document.getElementById(`error-message-${orderId}`);
             const canvasElement = document.createElement('canvas');
             const canvasContext = canvasElement.getContext('2d');
             let videoStream;
@@ -277,10 +279,17 @@
 
                     if (qrCode) {
                         outputElement.textContent = `Scanned QR Code: ${qrCode.data}`;
-                        successMessage.style.display = 'block';
 
-                        if (videoStream) {
-                            videoStream.getTracks().forEach(track => track.stop());
+                        if (qrCode.data.includes(orderId)) {
+                            successMessage.style.display = 'block';
+                            errorMessage.style.display = 'none';
+
+                            if (videoStream) {
+                                videoStream.getTracks().forEach(track => track.stop());
+                            }
+                        } else {
+                            errorMessage.textContent = "Error: Order ID does not match!";
+                            successMessage.style.display = 'none';
                         }
                     } else {
                         requestAnimationFrame(scanQRCode);
@@ -298,3 +307,4 @@
 </body>
 
 </html>
+
