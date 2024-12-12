@@ -206,6 +206,7 @@
                         <strong>Order ID:</strong> ${orderId}<br>
                         <strong>Status:</strong> ${status}<br>
                         <strong>Total:</strong> ₹${total}<br>
+                        <strong>deliveryDeadline:</strong> ₹${deliveryDeadline}<br>
                         <strong>Address:</strong> ${address}<br>
                         <strong>Products:</strong>
                         <ul>${products.map(p => `<li>${p.product} (₹${p.price})</li>`).join('')}</ul>
@@ -297,7 +298,8 @@
                 width: 200,
                 margin: 1
             }).then(url => {
-                container.innerHTML = `<img src="${url}" alt="Payment QR Code">`;
+                container.innerHTML = `<img src="${url}" alt="Payment QR Code">
+                                        <button onclick=""></button>`;
                 container.style.display = 'block';
             });
         }
