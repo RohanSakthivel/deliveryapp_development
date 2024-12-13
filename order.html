@@ -72,7 +72,9 @@
                 document.getElementById('latitude').textContent = latitude;
                 document.getElementById('longitude').textContent = longitude;
 
+                // Fetch orders initially and set up live updates
                 fetchOrders(latitude, longitude);
+                setInterval(() => fetchOrders(latitude, longitude), 1000); // Refresh orders every 1 second
             }
 
             function showError(error) {
@@ -80,39 +82,29 @@
             }
 
             async function fetchOrders(userLat, userLon) {
-    const orderContainer = document.getElementById('order-container');
-    const errorContainer = document.getElementById('error-message');
-    orderContainer.innerHTML = '';
-    errorContainer.textContent = '';
+                const orderContainer = document.getElementById('order-container');
+                orderContainer.innerHTML = '';
 
-    try {
-        const ordersSnapshot = await getDocs(collection(db, 'orders'));
-
-        if (ordersSnapshot.empty) {
-            errorContainer.textContent = "No orders found. Reloading...";
-            setTimeout(() => fetchOrders(userLat, userLon), 1000); // Retry after 1 second
-            return;
-        }
-
-        ordersSnapshot.forEach((doc) => {
-            const orderData = doc.data();
-            const distance = calculateDistance(userLat, userLon, orderData.latitude, orderData.longitude);
-            if (distance <= 2) {
-                const orderItem = document.createElement('div');
-                orderItem.innerHTML = `
-                    <strong>Order ID:</strong> ${doc.id} <br>
-                    <button class="acceptBtn" data-id="${doc.id}">Accept Order</button>
-                `;
-                orderContainer.appendChild(orderItem);
-                orderItem.querySelector('.acceptBtn').addEventListener('click', () => acceptOrder(doc.id));
+                try {
+                    const ordersSnapshot = await getDocs(collection(db, 'orders'));
+                    ordersSnapshot.forEach((doc) => {
+                        const orderData = doc.data();
+                        const distance = calculateDistance(userLat, userLon, orderData.latitude, orderData.longitude);
+                        if (distance <= 2) {
+                            const orderItem = document.createElement('div');
+                            orderItem.innerHTML = `
+                                <strong>Order ID:</strong> ${doc.id} <br>
+                                <button class="acceptBtn" data-id="${doc.id}">Accept Order</button>
+                            `;
+                            orderContainer.appendChild(orderItem);
+                            orderItem.querySelector('.acceptBtn').addEventListener('click', () => acceptOrder(doc.id));
+                        }
+                    });
+                } catch (error) {
+                    console.error(error);
+                    document.getElementById('error-message').textContent = 'Failed to load orders.';
+                }
             }
-        });
-    } catch (error) {
-        console.error(error);
-        errorContainer.textContent = 'Failed to load orders.';
-    }
-}
-
 
             async function acceptOrder(orderId) {
                 try {
@@ -149,7 +141,6 @@
                         await deleteDoc(orderRef);
 
                         alert(`Order ${orderId} accepted successfully!`);
-                        speak(`order:${orderId}`);
                         window.location.href = 'accepted.html'; 
                     } else {
                         alert('Order not found!');
@@ -169,11 +160,6 @@
                           Math.sin(dLon / 2) * Math.sin(dLon / 2);
                 const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
                 return R * c;
-            }
-
-            function speak(text) {
-                const msg = new SpeechSynthesisUtterance(text);
-                window.speechSynthesis.speak(msg);
             }
         });
     </script>
