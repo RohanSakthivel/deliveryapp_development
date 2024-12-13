@@ -1,136 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="en"> 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Accepted Orders - Zoloww</title>
+    <title>Zoloww - Orders</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-    <style>
-        /* General Styles */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f8f9fa;
-        }
-
-        .navbar {
-            background-color: #343a40;
-            color: #fff;
-            padding: 10px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .navbar-title img {
-            height: 40px;
-            margin-right: 10px;
-        }
-
-        .navbar-title h1 {
-            margin: 0;
-            font-size: 20px;
-        }
-
-        #acceptedOrders {
-            padding: 20px;
-        }
-
-        h2 {
-            color: #343a40;
-            text-align: center;
-        }
-
-        #order-container {
-            margin-top: 20px;
-        }
-
-        .order-item {
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 15px;
-            margin-bottom: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .order-item strong {
-            color: #343a40;
-        }
-
-        button {
-            padding: 8px 12px;
-            color: #fff;
-            background-color: #007bff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 10px;
-            width: 100%;
-            max-width: 150px;
-            margin: 10px auto;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        #error-message {
-            color: #d9534f;
-            text-align: center;
-        }
-
-        #qrcode {
-            text-align: center;
-        }
-
-        .success-message {
-            display: none;
-            text-align: center;
-            color: #28a745;
-            margin-top: 20px;
-        }
-
-        .qr-code-container {
-            display: none;
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        @media (max-width: 600px) {
-            .order-item {
-                font-size: 14px;
-                padding: 10px;
-            }
-
-            .navbar-title h1 {
-                font-size: 18px;
-            }
-
-            button {
-                width: 80%;
-                max-width: 200px;
-            }
-        }
-
-        video {
-            width: 100%;
-            height: auto;
-            max-width: 100%;
-        }
-
-        canvas {
-            display: none;
-        }
-    </style>
 </head>
-
 <body>
-    <!-- Navbar -->
     <nav class="navbar">
         <div class="navbar-title">
             <img src="logo.png" alt="Zoloww Logo">
@@ -138,17 +14,25 @@
         </div>
     </nav>
 
-    <!-- Accepted Orders Section -->
-    <section id="acceptedOrders">
-        <h2>Accepted Orders</h2>
+    <!-- Dashboard Section -->
+    <section id="dashboard">
+        <h2 id="welcomeMessage">
+            Welcome, <span id="userName"></span>!<br>Vehicle: <span id="vehicleType"></span>
+        </h2>
+
+        <div id="locationDisplay">
+            <p><strong>Latitude:</strong> <span id="latitude"></span></p>
+            <p><strong>Longitude:</strong> <span id="longitude"></span></p>
+        </div>
+
+        <h3>Orders within 2km</h3>
         <div id="order-container"></div>
         <div id="error-message"></div>
     </section>
 
-    <!-- Script Section -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, doc, updateDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyD4_h-2b2_IjrfvSKOxHrL9gWotG-SanFo",
@@ -163,196 +47,119 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        async function fetchAcceptedOrders() {
-            const orderContainer = document.getElementById('order-container');
-            const errorContainer = document.getElementById('error-message');
+        document.addEventListener('DOMContentLoaded', function () {
+            const userName = localStorage.getItem('userName');
+            const vehicleType = localStorage.getItem('vehicleType');
             const userEmail = localStorage.getItem('userEmail');
-            orderContainer.innerHTML = '<p>Loading orders...</p>';
-            errorContainer.textContent = '';
 
-            if (!userEmail) {
-                displayError("User email not found. Redirecting to login...");
-                setTimeout(() => window.location.href = '/login.html', 3000);
-                return;
-            }
+            document.getElementById('userName').textContent = userName;
+            document.getElementById('vehicleType').textContent = vehicleType;
 
-            try {
-                const userRef = doc(db, 'deliveryPartners', userEmail);
-                const userDoc = await getDoc(userRef);
+            getLocation();
 
-                if (userDoc.exists()) {
-                    const acceptedOrders = userDoc.data().ordersAccepted || {};
-                    if (Object.keys(acceptedOrders).length === 0) {
-                        displayError("No accepted orders found.");
-                        return;
-                    }
-                    displayOrders(acceptedOrders);
+            function getLocation() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(showPosition, showError);
                 } else {
-                    displayError("User profile not found.");
+                    alert("Geolocation is not supported by this browser.");
                 }
-            } catch (error) {
-                console.error('Error fetching accepted orders:', error);
-                displayError("Failed to load orders. Try again later.");
             }
-        }
 
-       function displayOrders(orders) {
-    const orderContainer = document.getElementById('order-container');
-    orderContainer.innerHTML = ''; // Clear previous content
+            function showPosition(position) {
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
 
-    // Separate orders into red (not delivered) and green (delivered)
-    const redOrders = [];
-    const greenOrders = [];
+                document.getElementById('latitude').textContent = latitude;
+                document.getElementById('longitude').textContent = longitude;
 
-    for (const [orderId, details] of Object.entries(orders)) {
-        if (details.status === "Delivered") {
-            greenOrders.push({ orderId, details });
-        } else {
-            redOrders.push({ orderId, details });
-        }
-    }
+                fetchOrders(latitude, longitude);
+            }
 
-    // Combine red and green orders, with red orders first
-    const sortedOrders = [...redOrders, ...greenOrders];
+            function showError(error) {
+                alert("Error getting location.");
+            }
 
-    // Render sorted orders
-    for (const { orderId, details } of sortedOrders) {
-        const { total = "0", address = "N/A", status = "N/A", products = [], deliveryDeadline = "N/A",latitude = "N/A",longitude ="N/A",mobile ="N/A",payment ="N/A" } = details;
+            async function fetchOrders(userLat, userLon) {
+                const orderContainer = document.getElementById('order-container');
+                orderContainer.innerHTML = '';
 
-        // Determine background color based on status
-        const color = status === "Delivered" ? "#00fa9a" : "#ff5050";
-
-        // Generate HTML for each order
-        const orderHTML = `
-            <div class="order-item" style="background-color: ${color}; padding: 10px; margin-bottom: 10px; border-radius: 5px;">
-                <strong>Order ID:</strong> ${orderId}<br>
-                <strong>Status:</strong> ${status}<br>
-                <strong>Total:</strong> ₹${total}<br>
-                <strong>Delivery Deadline:</strong> ${deliveryDeadline}<br>
-                <strong>Address:</strong> ${address}<br>
-                <strong>Products:</strong>
-                <ul>${products.map(p => `<li>${p.product} (₹${p.price})</li>`).join('')}</ul>
-                <button onclick="scanningqr('${orderId}', '${total}', '${products.map(p => p.product).join(", ")}', '${address}', '${deliveryDeadline}')">
-                    Scan QR Code
-                </button>
-                <img src="https://w7.pngwing.com/pngs/8/868/png-transparent-google-maps-hd-logo.png" style="height:50px,width:50px">
-                <div id="camera-container-${orderId}" class="card-camera"></div>
-                <div id="payment-qr-code-${orderId}" class="qr-code-container"></div>
-                <div id="success-message-${orderId}" class="success-message" style="display: none;">
-                    <h2>Order Successfully Completed!</h2>
-                    <button onclick="redirectToPaymentPage('${orderId}')">Proceed to Payment</button>
-                    <button onclick="markAsDelivered('${localStorage.getItem('userEmail')}', '${orderId}', '${deliveryDeadline}')">
-                        Mark as Delivered
-                    </button>
-                </div>
-            </div>
-        `;
-
-        // Append the generated HTML to the order container
-        orderContainer.insertAdjacentHTML('beforeend', orderHTML);
-    }
-}
-
-
-
-        function displayError(message) {
-            document.getElementById('error-message').textContent = message;
-        }
-
-        window.scanningqr = function (orderId, totalAmount, productList, expectedAddress, deliveryDeadline) {
-            const cameraContainer = document.getElementById(`camera-container-${orderId}`);
-            const outputElement = document.createElement('p');
-            const successMessage = document.getElementById(`success-message-${orderId}`);
-            cameraContainer.innerHTML = '';
-            cameraContainer.appendChild(outputElement);
-            outputElement.textContent = 'Scanning for QR Code...';
-
-            const videoElement = document.createElement('video');
-            cameraContainer.appendChild(videoElement);
-
-            const canvasElement = document.createElement('canvas');
-            const canvasContext = canvasElement.getContext('2d');
-            videoElement.setAttribute('playsinline', true);
-            videoElement.setAttribute('autoplay', true);
-
-            let videoStream;
-
-            async function startCamera() {
                 try {
-                    videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-                    videoElement.srcObject = videoStream;
-                    videoElement.play();
-                    scanQRCode();
-                } catch (error) {
-                    console.error('Error accessing camera:', error);
-                    outputElement.textContent = 'Failed to access camera. Please try again.';
-                }
-            }
-
-            function scanQRCode() {
-                if (videoElement.videoWidth > 0 && videoElement.videoHeight > 0) {
-                    canvasElement.width = videoElement.videoWidth;
-                    canvasElement.height = videoElement.videoHeight;
-                    canvasContext.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
-                    const qrCode = jsQR(canvasContext.getImageData(0, 0, canvasElement.width, canvasElement.height).data, canvasElement.width, canvasElement.height);
-
-                    if (qrCode) {
-                        const scannedData = qrCode.data;
-                        outputElement.textContent = `QR Code Data: ${scannedData}`;
-
-                        if (scannedData === orderId) {
-                            successMessage.style.display = 'block';
-                            const qrCodeContainer = document.getElementById(`payment-qr-code-${orderId}`);
-                            generatePaymentQRCode(qrCodeContainer, orderId, totalAmount, productList,deliveryDeadline);
-                            stopCamera(videoStream, videoElement);
+                    const ordersSnapshot = await getDocs(collection(db, 'orders'));
+                    ordersSnapshot.forEach((doc) => {
+                        const orderData = doc.data();
+                        const distance = calculateDistance(userLat, userLon, orderData.latitude, orderData.longitude);
+                        if (distance <= 2) {
+                            const orderItem = document.createElement('div');
+                            orderItem.innerHTML = `
+                                <strong>Order ID:</strong> ${doc.id} <br>
+                                <button class="acceptBtn" data-id="${doc.id}">Accept Order</button>
+                            `;
+                            orderContainer.appendChild(orderItem);
+                            orderItem.querySelector('.acceptBtn').addEventListener('click', () => acceptOrder(doc.id));
                         }
-                    }
+                    });
+                } catch (error) {
+                    console.error(error);
+                    document.getElementById('error-message').textContent = 'Failed to load orders.';
                 }
-                requestAnimationFrame(scanQRCode);
             }
 
-            function stopCamera(videoStream, videoElement) {
-                videoStream.getTracks().forEach(track => track.stop());
-                videoElement.remove();
+            async function acceptOrder(orderId) {
+                try {
+                    const orderRef = doc(db, 'orders', orderId);
+                    const orderDoc = await getDoc(orderRef);
+
+                    if (orderDoc.exists()) {
+                        const orderDetails = orderDoc.data();
+                        const userRef = doc(db, 'deliveryPartners', userEmail);
+
+                        // Update user profile with accepted order
+                        await updateDoc(userRef, {
+                            [`ordersAccepted.${orderId}`]: {
+                                total: orderDetails.total,
+                                address: orderDetails.address,
+                                status: 'Accepted',
+                                payment:'Not verified',
+                                mobile:orderDetails.mobileNumber,
+                                latitude: orderDetails.latitude,
+                                longitude: orderDetails.longitude,
+                                orderDate: orderDetails.timestamp || new Date().toISOString(),
+                                deliveryDeadline: orderDetails.deliveryDeadline || 'Not Provided',
+                                products: orderDetails.products || [],
+                            }
+                        });
+
+                        // Update order status
+                        await updateDoc(orderRef, {
+                            status: 'Accepted',
+                            acceptedBy: userEmail,
+                        });
+
+                        // Delete the order from the collection
+                        await deleteDoc(orderRef);
+
+                        alert(`Order ${orderId} accepted successfully!`);
+                        window.location.href = 'accepted.html'; 
+                    } else {
+                        alert('Order not found!');
+                    }
+                } catch (error) {
+                    console.error('Error accepting order:', error);
+                    alert(`Failed to accept the order: ${error.message}`);
+                }
             }
 
-            startCamera();
-        };
-
-        function generatePaymentQRCode(container, orderId, amount, productList,deliveryDeadline) {
-            const upiAddress = "skrohanhsr@axl";
-            const recipientName = "Zoloww Delivery";
-            const message = `ORDERID:${orderId},PRODUCTS:${productList},AMOUNT:${amount}`;
-            QRCode.toDataURL(`upi://pay?pa=${upiAddress}&pn=${recipientName}&am=${amount}&cu=INR&tn=${encodeURIComponent(message)}`, {
-                width: 200,
-                margin: 1
-            }).then(url => {
-                container.innerHTML = `<img src="${url}" alt="Payment QR Code">
-                                        <button onclick="deliveryupdate(${deliveryDeadline},${orderId})">deliverd</button>`;
-                container.style.display = 'block';
-            });
-        }
-
-        function redirectToPaymentPage(orderId) {
-            window.location.href = `/payment/${orderId}`;
-        }
-
-        window.markAsDelivered = function (userEmail, orderId, deliveryDeadline) {
-            const orderRef = doc(db, 'deliveryPartners', userEmail);
-
-            updateDoc(orderRef, {
-                [`ordersAccepted.${orderId}.status`]: "Delivered",
-                [`ordersAccepted.${orderId}.deliveredAt`]: new Date().toISOString(),
-            }).then(() => {
-                alert(`Order ${orderId} marked as delivered!`);
-                window.location.href = 'order.html'; 
-            }).catch(error => {
-                console.error("Error updating order: ", error);
-            });
-        };
-
-        window.onload = fetchAcceptedOrders;
+            function calculateDistance(lat1, lon1, lat2, lon2) {
+                const R = 6371;
+                const dLat = (lat2 - lat1) * Math.PI / 180;
+                const dLon = (lon2 - lon1) * Math.PI / 180;
+                const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                          Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                          Math.sin(dLon / 2) * Math.sin(dLon / 2);
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                return R * c;
+            }
+        });
     </script>
 </body>
-
 </html>
