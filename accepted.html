@@ -432,7 +432,7 @@ height:auto;
             const upiAddress = "skrohanhsr@axl";
             const recipientName = "Zoloww Delivery";
             const message = `ORDERID:${orderId},PRODUCTS:${productList},AMOUNT:${amount}`;
-            QRCode.toDataURL(`upi://pay?pa=${upiAddress}&pn=${recipientName}&am=${amount}&cu=INR&tn=${encodeURIComponent(message)}`, {
+            QRCode.toDataURL(`upi://pay?pa=${upiAddress}&pn=${recipientName}&am=${amount}&cu=INR`, {
                 width: 200,
                 margin: 1
             }).then(url => {
