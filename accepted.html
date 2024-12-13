@@ -314,7 +314,6 @@
                 [`ordersAccepted.${orderId}.deliveredAt`]: new Date().toISOString(),
             }).then(() => {
                 alert(`Order ${orderId} marked as delivered!`);
-                location.reload();
                 window.location.href = 'order.html'; 
             }).catch(error => {
                 console.error("Error updating order: ", error);
