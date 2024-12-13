@@ -175,11 +175,38 @@ canvas {
     height: 50px;
     width: 50px;
     border-radius: 8px;
-    margin-top: 10px;
-    margin-right: 15px;
-    margin-bottom: 10px;
-    margin-left: 15px;
+    cursor: pointer; /* Show pointer cursor on hover */
+    position: relative;
+    transition: transform 0.3s ease-in-out; /* Smooth transformation */
 }
+
+.map-image.clicked {
+    animation: pointerCluster 0.5s ease-out forwards;
+}
+
+@keyframes pointerCluster {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    25% {
+        transform: scale(1.2);
+        opacity: 0.8;
+    }
+    50% {
+        transform: scale(1.5);
+        opacity: 0.6;
+    }
+    75% {
+        transform: scale(1.2);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
 
 
 .map-box {
