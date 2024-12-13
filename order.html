@@ -47,6 +47,9 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        let isSpeaking = false;
+        let interval;
+
         document.addEventListener('DOMContentLoaded', function () {
             const userName = localStorage.getItem('userName');
             const vehicleType = localStorage.getItem('vehicleType');
@@ -58,8 +61,6 @@
             getLocation();
 
             let refreshInterval;
-            let isSpeaking = false;
-            let interval;
 
             function getLocation() {
                 if (navigator.geolocation) {
@@ -86,7 +87,7 @@
                 alert("Error getting location.");
             }
 
-            function startSpeaking() {
+            async function startSpeaking() {
                 if (isSpeaking) return; // Prevent multiple intervals
                 isSpeaking = true;
 
@@ -130,6 +131,7 @@
                         // Stop refreshing once an order is found
                         clearInterval(refreshInterval);
                         startSpeaking();
+
                         const nextOrder = orders.shift();
                         const orderItem = document.createElement('div');
                         orderItem.innerHTML = `
@@ -192,7 +194,7 @@
             }
 
             function calculateDistance(lat1, lon1, lat2, lon2) {
-                const R = 6371; // Radius of the Earth in km
+                const R = 6371;
                 const dLat = (lat2 - lat1) * Math.PI / 180;
                 const dLon = (lon2 - lon1) * Math.PI / 180;
                 const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
