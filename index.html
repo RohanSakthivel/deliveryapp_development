@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zoloww - Delivery Partner Login</title>
     <style>/* General Reset */
-/* General Reset */
 * {
     margin: 0;
     padding: 0;
@@ -15,7 +14,7 @@
 /* Body Styles */
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    background-color: #f4f4f7;
+    background: linear-gradient(135deg, #f0f4f8, #d9e1e8);
     color: #333;
     display: flex;
     justify-content: center;
@@ -30,72 +29,86 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 20px;
+    padding: 15px 20px;
     background-color: #ffffff;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     width: 100%;
     position: fixed;
     top: 0;
     left: 0;
     z-index: 1000;
     border-bottom: 1px solid #e0e0e0;
+    border-radius: 0 0 20px 20px;
 }
 
 .navbar-title {
     display: flex;
     align-items: center;
+    gap: 10px;
 }
 
 .navbar-title img {
-    width: 40px;
-    height: 40px;
-    margin-right: 10px;
+    width: 45px;
+    height: 45px;
+    object-fit: contain;
+    border-radius: 50%;
 }
 
 .navbar-title h1 {
-    font-size: 26px;
+    font-size: 32px;
     color: #333;
-    font-weight: 600;
-    letter-spacing: 1px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-left: 10px;
 }
 
 /* Login Section Styles */
 #loginSection {
     background-color: #ffffff;
-    padding: 40px 30px;
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    padding: 50px 35px;
+    border-radius: 20px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
     width: 100%;
-    max-width: 450px;
-    margin-top: 80px;
+    max-width: 480px;
+    margin-top: 100px;
     text-align: center;
     transition: all 0.3s ease-in-out;
+    transform: scale(0.98);
+    opacity: 0;
+    animation: fadeIn 0.6s forwards;
 }
 
-#loginSection:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.2);
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 #loginSection h2 {
-    font-size: 30px;
+    font-size: 34px;
     color: #333;
-    margin-bottom: 25px;
-    font-weight: 600;
-    letter-spacing: 1px;
+    margin-bottom: 30px;
+    font-weight: 700;
     text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 /* Input Styles */
 .input-o {
     width: 100%;
-    padding: 16px;
-    margin: 12px 0;
+    padding: 18px;
+    margin: 15px 0;
     border: 1px solid #ccc;
-    border-radius: 12px;
+    border-radius: 15px;
     font-size: 16px;
     color: #333;
-    background-color: #f9f9f9;
+    background-color: #f7f7f7;
     transition: all 0.3s ease;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
@@ -104,21 +117,21 @@ body {
     border-color: #007aff;
     background-color: #ffffff;
     outline: none;
-    box-shadow: 0 4px 10px rgba(0, 122, 255, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3);
 }
 
 /* Button Styles */
 button {
     width: 100%;
-    padding: 16px;
+    padding: 18px;
     background-color: #007aff;
     color: #fff;
     font-size: 18px;
     border: none;
-    border-radius: 12px;
+    border-radius: 15px;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0, 122, 255, 0.2);
+    box-shadow: 0 5px 15px rgba(0, 122, 255, 0.2);
 }
 
 button:hover {
@@ -137,12 +150,13 @@ button:active {
     background-color: #f0f0f5;
     color: #007aff;
     font-size: 16px;
-    border-radius: 10px;
+    border-radius: 12px;
     text-align: center;
-    margin-top: 25px;
+    margin-top: 30px;
     cursor: pointer;
     transition: all 0.3s ease;
     border: 1px solid #ccc;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .btn-96:hover {
@@ -156,6 +170,13 @@ h5 {
     font-size: 14px;
     color: #666;
     margin-top: 20px;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+}
+
+h5:hover {
+    color: #007aff;
+    cursor: pointer;
 }
 
 /* Focused Input Accessibility */
@@ -163,18 +184,34 @@ h5 {
     outline: 3px solid #007aff;
 }
 
+/* Micro-interactions for Inputs */
+.input-o:focus {
+    animation: inputFocus 0.3s ease-out;
+}
+
+@keyframes inputFocus {
+    0% {
+        border-color: #ccc;
+        transform: scale(1);
+    }
+    100% {
+        border-color: #007aff;
+        transform: scale(1.05);
+    }
+}
+
 /* Mobile Responsiveness */
 @media (max-width: 480px) {
     #loginSection {
-        padding: 30px 20px;
+        padding: 40px 25px;
     }
 
     #loginSection h2 {
-        font-size: 26px;
+        font-size: 28px;
     }
 
     .navbar-title h1 {
-        font-size: 22px;
+        font-size: 24px;
     }
 
     button {
@@ -185,6 +222,7 @@ h5 {
         font-size: 14px;
     }
 }
+
 
 </style>
 </head>
