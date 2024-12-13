@@ -343,9 +343,7 @@ height:auto;
                  <a href="tel:+${mobile}">
                 <img src="https://static-00.iconduck.com/assets.00/call-icon-2048x2048-9fglrllu.png" class="map-image"></a>
                 <div id="camera-container-${orderId}" class="card-camera"></div>
-                <div id="payment-qr-code-${orderId}" class="qr-code-container">
-                <img src="https://ecards.hypupad.com/wp-content/uploads/2021/01/payment-logo-icons-1024x272.png" class="paymenticon">
-                </div>
+                <div id="payment-qr-code-${orderId}" class="qr-code-container"></div>
                 <div id="success-message-${orderId}" class="success-message" style="display: none;">
                     <img src="https://www.pngmart.com/files/20/Success-Transparent-Background.png" class="map-image">
                     <h2>Order Successfully Completed!</h2>
@@ -434,7 +432,8 @@ height:auto;
                 width: 200,
                 margin: 1
             }).then(url => {
-                container.innerHTML = `<img src="${url}" alt="Payment QR Code">
+                container.innerHTML = `<img src="https://ecards.hypupad.com/wp-content/uploads/2021/01/payment-logo-icons-1024x272.png" class="paymenticon">
+                                        <img src="${url}" alt="Payment QR Code">
                                         <button onclick="deliveryupdate(${deliveryDeadline},${orderId})">deliverd</button>`;
                 container.style.display = 'block';
             });
