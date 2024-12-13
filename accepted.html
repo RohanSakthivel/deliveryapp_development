@@ -210,7 +210,10 @@ canvas {
         opacity: 1;
     }
 }
-
+.paymenticon1{
+width: auto;
+height: 120px;
+}
 .paymenticon{
 width: 100%;
 height:auto;
@@ -432,7 +435,8 @@ height:auto;
                 width: 200,
                 margin: 1
             }).then(url => {
-                container.innerHTML = `<img src="https://ecards.hypupad.com/wp-content/uploads/2021/01/payment-logo-icons-1024x272.png" class="paymenticon">
+                container.innerHTML = ` <img src="https://vectorseek.com/wp-content/uploads/2023/09/Unified-Payment-Interface-Upi-Logo-Vector.svg-.png" class="paymenticon1">
+                                        <img src="https://ecards.hypupad.com/wp-content/uploads/2021/01/payment-logo-icons-1024x272.png" class="paymenticon">
                                         <img src="${url}" alt="Payment QR Code">
                                         `;
                 container.style.display = 'block';
