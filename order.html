@@ -49,8 +49,9 @@
 
         let isSpeaking = false;
         let interval;
+        let refreshInterval;
 
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', () => {
             const userName = localStorage.getItem('userName');
             const vehicleType = localStorage.getItem('vehicleType');
             const userEmail = localStorage.getItem('userEmail');
@@ -59,151 +60,143 @@
             document.getElementById('vehicleType').textContent = vehicleType;
 
             getLocation();
+        });
 
-            let refreshInterval;
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition, showError);
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
 
-            function getLocation() {
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(showPosition, showError);
-                } else {
-                    alert("Geolocation is not supported by this browser.");
+        function showPosition(position) {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+
+            document.getElementById('latitude').textContent = latitude;
+            document.getElementById('longitude').textContent = longitude;
+
+            fetchOrders(latitude, longitude);
+            refreshInterval = setInterval(() => fetchOrders(latitude, longitude), 1000);
+        }
+
+        function showError(error) {
+            alert("Error getting location.");
+        }
+
+        async function startSpeaking() {
+            if (isSpeaking) return;
+            isSpeaking = true;
+
+            function speakOrder() {
+                const utterance = new SpeechSynthesisUtterance("Order has been placed");
+                utterance.pitch = 1;
+                utterance.rate = 1;
+                utterance.volume = 1;
+                window.speechSynthesis.speak(utterance);
+            }
+
+            speakOrder();
+            interval = setInterval(speakOrder, 2000);
+        }
+
+        function stopSpeaking() {
+            if (!isSpeaking) return;
+            isSpeaking = false;
+            clearInterval(interval);
+            window.speechSynthesis.cancel();
+        }
+
+        async function fetchOrders(userLat, userLon) {
+            const orderContainer = document.getElementById('order-container');
+            orderContainer.innerHTML = '';
+
+            try {
+                const ordersSnapshot = await getDocs(collection(db, 'orders'));
+                const orders = [];
+
+                ordersSnapshot.forEach((doc) => {
+                    const orderData = doc.data();
+                    const distance = calculateDistance(userLat, userLon, orderData.latitude, orderData.longitude);
+                    if (distance <= 2) {
+                        orders.push({ id: doc.id, data: orderData });
+                    }
+                });
+
+                if (orders.length > 0) {
+                    clearInterval(refreshInterval);
+                    startSpeaking();
+
+                    orders.forEach(order => {
+                        const orderItem = document.createElement('div');
+                        orderItem.innerHTML = `
+                            <strong>Order ID:</strong> ${order.id} <br>
+                            <button class="acceptBtn" data-id="${order.id}">Accept Order</button>
+                        `;
+                        orderContainer.appendChild(orderItem);
+                        orderItem.querySelector('.acceptBtn').addEventListener('click', () => acceptOrder(order.id));
+                    });
                 }
+            } catch (error) {
+                console.error(error);
+                document.getElementById('error-message').textContent = 'Failed to load orders.';
             }
+        }
 
-            function showPosition(position) {
-                const latitude = position.coords.latitude;
-                const longitude = position.coords.longitude;
+        async function acceptOrder(orderId) {
+            try {
+                const orderRef = doc(db, 'orders', orderId);
+                const orderDoc = await getDoc(orderRef);
 
-                document.getElementById('latitude').textContent = latitude;
-                document.getElementById('longitude').textContent = longitude;
+                if (orderDoc.exists()) {
+                    const orderDetails = orderDoc.data();
+                    const userRef = doc(db, 'deliveryPartners', localStorage.getItem('userEmail'));
 
-                fetchOrders(latitude, longitude);
-
-                // Start refreshing orders every 1 second
-                refreshInterval = setInterval(() => fetchOrders(latitude, longitude), 1000);
-            }
-
-            function showError(error) {
-                alert("Error getting location.");
-            }
-
-            async function startSpeaking() {
-                if (isSpeaking) return; // Prevent multiple intervals
-                isSpeaking = true;
-
-                function speakOrder() {
-                    const utterance = new SpeechSynthesisUtterance("Order has been placed");
-                    utterance.pitch = 1;
-                    utterance.rate = 1;
-                    utterance.volume = 1;
-                    window.speechSynthesis.speak(utterance);
-                }
-
-                // Speak "Order has been placed" repeatedly
-                speakOrder();
-                interval = setInterval(speakOrder, 2000); // Adjust interval time as needed
-            }
-
-            function stopSpeaking() {
-                if (!isSpeaking) return; // If not speaking, do nothing
-                isSpeaking = false;
-                clearInterval(interval); // Stop the interval
-                window.speechSynthesis.cancel(); // Stop any ongoing speech
-            }
-
-            async function fetchOrders(userLat, userLon) {
-                const orderContainer = document.getElementById('order-container');
-                orderContainer.innerHTML = '';
-
-                try {
-                    const ordersSnapshot = await getDocs(collection(db, 'orders'));
-                    const orders = [];
-
-                    ordersSnapshot.forEach((doc) => {
-                        const orderData = doc.data();
-                        const distance = calculateDistance(userLat, userLon, orderData.latitude, orderData.longitude);
-                        if (distance <= 2) {
-                            orders.push({ id: doc.id, data: orderData });
+                    await updateDoc(userRef, {
+                        [`ordersAccepted.${orderId}`]: {
+                            total: orderDetails.total,
+                            address: orderDetails.address,
+                            status: 'Accepted',
+                            payment: 'Not verified',
+                            mobile: orderDetails.mobileNumber,
+                            latitude: orderDetails.latitude,
+                            longitude: orderDetails.longitude,
+                            orderDate: orderDetails.timestamp || new Date().toISOString(),
+                            deliveryDeadline: orderDetails.deliveryDeadline || 'Not Provided',
+                            products: orderDetails.products || [],
                         }
                     });
 
-                    if (orders.length > 0) {
-                        // Stop refreshing once an order is found
-                        clearInterval(refreshInterval);
-                        startSpeaking();
+                    await updateDoc(orderRef, {
+                        status: 'Accepted',
+                        acceptedBy: localStorage.getItem('userEmail'),
+                    });
 
-                        const nextOrder = orders.shift();
-                        const orderItem = document.createElement('div');
-                        orderItem.innerHTML = `
-                            <strong>Order ID:</strong> ${nextOrder.id} <br>
-                            <button class="acceptBtn" data-id="${nextOrder.id}">Accept Order</button>
-                        `;
-                        orderContainer.appendChild(orderItem);
-                        orderItem.querySelector('.acceptBtn').addEventListener('click', () => acceptOrder(nextOrder.id));
-                    }
-                } catch (error) {
-                    console.error(error);
-                    document.getElementById('error-message').textContent = 'Failed to load orders.';
+                    await deleteDoc(orderRef);
+
+                    alert(`Order ${orderId} accepted successfully!`);
+                    stopSpeaking();
+                    window.location.href = 'accepted.html'; 
+                } else {
+                    alert('Order not found!');
                 }
+            } catch (error) {
+                console.error('Error accepting order:', error);
+                alert(`Failed to accept the order: ${error.message}`);
             }
+        }
 
-            async function acceptOrder(orderId) {
-                try {
-                    const orderRef = doc(db, 'orders', orderId);
-                    const orderDoc = await getDoc(orderRef);
-
-                    if (orderDoc.exists()) {
-                        const orderDetails = orderDoc.data();
-                        const userRef = doc(db, 'deliveryPartners', userEmail);
-
-                        // Update user profile with accepted order
-                        await updateDoc(userRef, {
-                            [`ordersAccepted.${orderId}`]: {
-                                total: orderDetails.total,
-                                address: orderDetails.address,
-                                status: 'Accepted',
-                                payment: 'Not verified',
-                                mobile: orderDetails.mobileNumber,
-                                latitude: orderDetails.latitude,
-                                longitude: orderDetails.longitude,
-                                orderDate: orderDetails.timestamp || new Date().toISOString(),
-                                deliveryDeadline: orderDetails.deliveryDeadline || 'Not Provided',
-                                products: orderDetails.products || [],
-                            }
-                        });
-
-                        // Update order status
-                        await updateDoc(orderRef, {
-                            status: 'Accepted',
-                            acceptedBy: userEmail,
-                        });
-
-                        // Delete the order from the collection
-                        await deleteDoc(orderRef);
-
-                        alert(`Order ${orderId} accepted successfully!`);
-                        stopSpeaking();
-                        window.location.href = 'accepted.html'; 
-                    } else {
-                        alert('Order not found!');
-                    }
-                } catch (error) {
-                    console.error('Error accepting order:', error);
-                    alert(`Failed to accept the order: ${error.message}`);
-                }
-            }
-
-            function calculateDistance(lat1, lon1, lat2, lon2) {
-                const R = 6371;
-                const dLat = (lat2 - lat1) * Math.PI / 180;
-                const dLon = (lon2 - lon1) * Math.PI / 180;
-                const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                          Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                          Math.sin(dLon / 2) * Math.sin(dLon / 2);
-                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-                return R * c;
-            }
-        });
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
     </script>
 </body>
 </html>
