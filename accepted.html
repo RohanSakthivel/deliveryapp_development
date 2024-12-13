@@ -11,14 +11,13 @@
     <style>
        /* General Styles */
 body {
-    font-family: 'Arial', sans-serif;
+    font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
     background-color: #ffffff;
     color: #333333;
 }
 
-/* Navbar */
 .navbar {
     background-color: #ff6f00; /* Orange */
     color: #ffffff;
@@ -38,25 +37,26 @@ body {
     font-size: 20px;
 }
 
-/* Section Headers */
+#acceptedOrders {
+    padding: 20px;
+}
+
 h2 {
-    color: #ff6f00;
+    color: #ff6f00; /* Orange */
     text-align: center;
     margin-top: 20px;
 }
 
-/* Order Container */
 #order-container {
     margin-top: 20px;
-    padding: 20px;
 }
 
 .order-item {
-    background: #fff;
+    background: #ffffff;
     border: 1px solid #ff6f00; /* Orange border */
     border-radius: 5px;
     padding: 15px;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -67,35 +67,32 @@ h2 {
 }
 
 .order-item strong {
-    color: #ff6f00;
+    color: #ff6f00; /* Orange */
 }
 
-/* Buttons */
 button {
-    padding: 10px 15px;
+    padding: 8px 12px;
     color: #ffffff;
-    background-color: #ff6f00;
+    background-color: #ff6f00; /* Orange */
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    display: block;
-    margin: 15px auto 0;
+    margin-top: 10px;
     width: 100%;
     max-width: 150px;
-    text-align: center;
+    margin: 10px auto;
+    transition: background-color 0.2s ease;
 }
 
 button:hover {
-    background-color: #e65c00;
+    background-color: #e65c00; /* Darker Orange */
 }
 
-/* Error Message */
 #error-message {
     color: #d9534f;
     text-align: center;
 }
 
-/* Success Message */
 .success-message {
     display: none;
     text-align: center;
@@ -103,23 +100,30 @@ button:hover {
     margin-top: 20px;
 }
 
-/* QR Code Container */
 .qr-code-container {
     display: none;
     text-align: center;
     margin-top: 20px;
 }
 
-/* Map Box */
+.map-image {
+    height: 50px;
+    width: 50px;
+    object-fit: cover;
+}
+
 .map-box {
-    width: 120px;
-    padding: 10px;
-    background-color: #fff;
-    border: 1px solid #ff6f00;
+    height: 150px;
+    width: 70px;
     border-radius: 10px;
+    background-color: #ff6f00; /* Orange */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    color: #ffffff;
     text-align: center;
-    margin: 10px auto;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -130,24 +134,14 @@ button:hover {
 
 .map-box h4 {
     font-size: 14px;
-    color: #ff6f00;
     margin-bottom: 5px;
 }
 
 .map-box h5 {
     font-size: 12px;
-    color: #333333;
     margin-bottom: 10px;
 }
 
-.map-image {
-    width: 50px;
-    height: 50px;
-    object-fit: cover;
-    margin-top: 5px;
-}
-
-/* Responsive Design */
 @media (max-width: 600px) {
     .order-item {
         font-size: 14px;
@@ -162,6 +156,16 @@ button:hover {
         width: 80%;
         max-width: 200px;
     }
+}
+
+video {
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+}
+
+canvas {
+    display: none;
 }
 
     </style>
