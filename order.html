@@ -58,7 +58,6 @@
             getLocation();
 
             let refreshInterval;
-            let speakingInterval;
 
             function getLocation() {
                 if (navigator.geolocation) {
@@ -107,15 +106,12 @@
 
                         const nextOrder = orders.shift();
                         const orderItem = document.createElement('div');
-                        orderItem.innerHTML = `
+                        orderItem.innerHTML = 
                             <strong>Order ID:</strong> ${nextOrder.id} <br>
                             <button class="acceptBtn" data-id="${nextOrder.id}">Accept Order</button>
-                        `;
+                        ;
                         orderContainer.appendChild(orderItem);
                         orderItem.querySelector('.acceptBtn').addEventListener('click', () => acceptOrder(nextOrder.id));
-
-                        // Start speaking the order details
-                        speakOrder(nextOrder);
                     }
                 } catch (error) {
                     console.error(error);
@@ -134,7 +130,7 @@
 
                         // Update user profile with accepted order
                         await updateDoc(userRef, {
-                            [`ordersAccepted.${orderId}`]: {
+                            [ordersAccepted.${orderId}]: {
                                 total: orderDetails.total,
                                 address: orderDetails.address,
                                 status: 'Accepted',
@@ -157,32 +153,15 @@
                         // Delete the order from the collection
                         await deleteDoc(orderRef);
 
-                        // Stop speaking when order is accepted
-                        clearInterval(speakingInterval);
-
-                        alert(`Order ${orderId} accepted successfully!`);
+                        alert(Order ${orderId} accepted successfully!);
                         window.location.href = 'accepted.html'; 
                     } else {
                         alert('Order not found!');
                     }
                 } catch (error) {
                     console.error('Error accepting order:', error);
-                    alert(`Failed to accept the order: ${error.message}`);
+                    alert(Failed to accept the order: ${error.message});
                 }
-            }
-
-            function speakOrder(order) {
-                const orderDetails = `Order ID: ${order.id}. Total: ${order.data.total}. Address: ${order.data.address}.`;
-
-                function speak(text) {
-                    const speech = new SpeechSynthesisUtterance(text);
-                    speechSynthesis.speak(speech);
-                }
-
-                // Start speaking at regular intervals
-                speakingInterval = setInterval(() => {
-                    speak(orderDetails);
-                }, 5000);
             }
 
             function calculateDistance(lat1, lon1, lat2, lon2) {
