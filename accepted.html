@@ -126,30 +126,45 @@
         canvas {
             display: none;
         }
-        .map-image{
-            height: 50px;
-            width: 50px;
-        }
         .map-box {
-    height: 150px; 
-    width: 100px; /* Adjusted for better aspect ratio */
-    border-radius: 10px;
-    background-color: #ccff99;
+    width: 250px; /* Adjusted for a more readable width */
+    padding: 20px; /* Padding around the content */
+    background-color: #ffffff; /* White background for clean look */
+    border-radius: 15px; /* Rounded corners */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
     display: flex;
-    justify-content: center; /* Centers content horizontally */
-    align-items: center; /* Centers content vertically */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Adds subtle shadow */
+    flex-direction: column;
+    align-items: center; /* Centers content horizontally */
+    text-align: center; /* Centers text */
+    font-family: 'Arial', sans-serif; /* Clean and modern font */
+    color: #333; /* Dark text for readability */
     transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover effects */
-    text-align: center; /* Ensures text is centered */
-    font-family: Arial, sans-serif; /* Clean font */
-    font-size: 14px;
-    color: #333; /* Darker text for contrast */
-    margin: 10px; /* Adds spacing between cards */
+    margin: 10px; /* Adds spacing around the card */
 }
 
 .map-box:hover {
     transform: translateY(-5px); /* Lift effect on hover */
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); /* Enhanced shadow on hover */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Enhanced shadow on hover */
+}
+
+.map-box h4 {
+    font-size: 18px; /* Larger font size for title */
+    margin-bottom: 10px; /* Space between title and content */
+    color: #2c3e50; /* Darker color for title */
+}
+
+.map-box h5 {
+    font-size: 14px; /* Smaller font size for subtitle */
+    margin-bottom: 15px; /* Space between subtitle and image */
+    color: #7f8c8d; /* Lighter color for subtitle */
+}
+
+.map-image {
+    width: 100px; /* Fixed size for the image */
+    height: 100px; /* Fixed size for the image */
+    object-fit: cover; /* Ensures the image covers the area without distortion */
+    border-radius: 50%; /* Circular image */
+    margin-top: 10px; /* Space between text and image */
 }
 
     </style>
