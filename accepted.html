@@ -9,162 +9,159 @@
     <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
     <style>
-        /* General Styles */
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f8f9fa;
-        }
+       /* General Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #ffffff;
+    color: #333333;
+}
 
-        .navbar {
-            background-color: #343a40;
-            color: #fff;
-            padding: 10px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .navbar-title img {
-            height: 40px;
-            margin-right: 10px;
-        }
-
-        .navbar-title h1 {
-            margin: 0;
-            font-size: 20px;
-        }
-
-        #acceptedOrders {
-            padding: 20px;
-        }
-
-        h2 {
-            color: #343a40;
-            text-align: center;
-        }
-
-        #order-container {
-            margin-top: 20px;
-        }
-
-        .order-item {
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 15px;
-            margin-bottom: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .order-item strong {
-            color: #343a40;
-        }
-
-        button {
-            padding: 8px 12px;
-            color: #fff;
-            background-color: #007bff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 10px;
-            width: 100%;
-            max-width: 150px;
-            margin: 10px auto;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        #error-message {
-            color: #d9534f;
-            text-align: center;
-        }
-
-        #qrcode {
-            text-align: center;
-        }
-
-        .success-message {
-            display: none;
-            text-align: center;
-            color: #28a745;
-            margin-top: 20px;
-        }
-
-        .qr-code-container {
-            display: none;
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        @media (max-width: 600px) {
-            .order-item {
-                font-size: 14px;
-                padding: 10px;
-            }
-
-            .navbar-title h1 {
-                font-size: 18px;
-            }
-
-            button {
-                width: 80%;
-                max-width: 200px;
-            }
-        }
-
-        video {
-            width: 100%;
-            height: auto;
-            max-width: 100%;
-        }
-
-        canvas {
-            display: none;
-        }
-        .map-box {
-    width: 110px; /* Smaller width */
-    padding: 10px; /* Reduced padding */
-    background-color: #ffffff; /* White background */
-    border-radius: 10px; /* Rounded corners */
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+/* Navbar */
+.navbar {
+    background-color: #ff6f00; /* Orange */
+    color: #ffffff;
+    padding: 10px 20px;
     display: flex;
-    flex-direction: column;
-    align-items: center; /* Centers content horizontally */
-    text-align: center; /* Centers text */
-    font-family: 'Arial', sans-serif; /* Clean font */
-    color: #333; /* Dark text */
-    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover effects */
-    margin: 10px; /* Space around the card */
+    align-items: center;
+    justify-content: space-between;
+}
+
+.navbar-title img {
+    height: 40px;
+    margin-right: 10px;
+}
+
+.navbar-title h1 {
+    margin: 0;
+    font-size: 20px;
+}
+
+/* Section Headers */
+h2 {
+    color: #ff6f00;
+    text-align: center;
+    margin-top: 20px;
+}
+
+/* Order Container */
+#order-container {
+    margin-top: 20px;
+    padding: 20px;
+}
+
+.order-item {
+    background: #fff;
+    border: 1px solid #ff6f00; /* Orange border */
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.order-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.order-item strong {
+    color: #ff6f00;
+}
+
+/* Buttons */
+button {
+    padding: 10px 15px;
+    color: #ffffff;
+    background-color: #ff6f00;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: block;
+    margin: 15px auto 0;
+    width: 100%;
+    max-width: 150px;
+    text-align: center;
+}
+
+button:hover {
+    background-color: #e65c00;
+}
+
+/* Error Message */
+#error-message {
+    color: #d9534f;
+    text-align: center;
+}
+
+/* Success Message */
+.success-message {
+    display: none;
+    text-align: center;
+    color: #28a745;
+    margin-top: 20px;
+}
+
+/* QR Code Container */
+.qr-code-container {
+    display: none;
+    text-align: center;
+    margin-top: 20px;
+}
+
+/* Map Box */
+.map-box {
+    width: 120px;
+    padding: 10px;
+    background-color: #fff;
+    border: 1px solid #ff6f00;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    margin: 10px auto;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .map-box:hover {
-    transform: translateY(-3px); /* Slight lift on hover */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Stronger shadow on hover */
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .map-box h4 {
-    font-size: 14px; /* Smaller title */
-    margin-bottom: 5px; /* Reduced space between title and content */
-    color: #2c3e50; /* Darker color for title */
+    font-size: 14px;
+    color: #ff6f00;
+    margin-bottom: 5px;
 }
 
 .map-box h5 {
-    font-size: 12px; /* Smaller subtitle */
-    margin-bottom: 10px; /* Reduced space between subtitle and image */
-    color: #7f8c8d; /* Lighter color for subtitle */
+    font-size: 12px;
+    color: #333333;
+    margin-bottom: 10px;
 }
 
 .map-image {
-    width: 50px; /* Smaller image size */
-    height: 50px; /* Smaller image size */
-    object-fit: cover; /* Ensures the image fits without distortion */
-   
-    margin-top: 5px; /* Reduced space between text and image */
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    margin-top: 5px;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .order-item {
+        font-size: 14px;
+        padding: 10px;
+    }
+
+    .navbar-title h1 {
+        font-size: 18px;
+    }
+
+    button {
+        width: 80%;
+        max-width: 200px;
+    }
 }
 
     </style>
