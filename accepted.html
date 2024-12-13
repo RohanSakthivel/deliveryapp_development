@@ -126,6 +126,10 @@
         canvas {
             display: none;
         }
+        .map-image{
+            height: 50px;
+            width: 50px;
+        }
     </style>
 </head>
 
@@ -235,7 +239,7 @@
                 <button onclick="scanningqr('${orderId}', '${total}', '${products.map(p => p.product).join(", ")}', '${address}', '${deliveryDeadline}')">
                     Scan QR Code
                 </button>
-                <img src="https://w7.pngwing.com/pngs/8/868/png-transparent-google-maps-hd-logo.png" style="height:50px,width:50px">
+                <img src="https://i.pinimg.com/originals/74/c6/a3/74c6a3a04b776eb1dd5e5343fbbc1a2c.png" class="map-image">
                 <div id="camera-container-${orderId}" class="card-camera"></div>
                 <div id="payment-qr-code-${orderId}" class="qr-code-container"></div>
                 <div id="success-message-${orderId}" class="success-message" style="display: none;">
