@@ -57,6 +57,8 @@
 
             getLocation();
 
+            let refreshInterval;
+
             function getLocation() {
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(showPosition, showError);
@@ -74,8 +76,8 @@
 
                 fetchOrders(latitude, longitude);
 
-                // Refresh orders every 1 second
-                setInterval(() => fetchOrders(latitude, longitude), 1000);
+                // Start refreshing orders every 1 second
+                refreshInterval = setInterval(() => fetchOrders(latitude, longitude), 1000);
             }
 
             function showError(error) {
@@ -99,6 +101,9 @@
                     });
 
                     if (orders.length > 0) {
+                        // Stop refreshing once an order is found
+                        clearInterval(refreshInterval);
+
                         const nextOrder = orders.shift();
                         const orderItem = document.createElement('div');
                         orderItem.innerHTML = `
@@ -129,8 +134,8 @@
                                 total: orderDetails.total,
                                 address: orderDetails.address,
                                 status: 'Accepted',
-                                payment:'Not verified',
-                                mobile:orderDetails.mobileNumber,
+                                payment: 'Not verified',
+                                mobile: orderDetails.mobileNumber,
                                 latitude: orderDetails.latitude,
                                 longitude: orderDetails.longitude,
                                 orderDate: orderDetails.timestamp || new Date().toISOString(),
