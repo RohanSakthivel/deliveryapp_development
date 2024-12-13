@@ -4,7 +4,153 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zoloww - Delivery Partner Login</title>
-    <link rel="stylesheet" href="styles.css">
+    <style>/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body Styles */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #f4f4f7;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    padding: 20px;
+}
+
+/* Navbar Styles */
+.navbar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+}
+
+.navbar-title {
+    display: flex;
+    align-items: center;
+}
+
+.navbar-title img {
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+}
+
+.navbar-title h1 {
+    font-size: 24px;
+    color: #333;
+    font-weight: 600;
+}
+
+/* Login Section Styles */
+#loginSection {
+    background-color: #ffffff;
+    padding: 40px 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    margin-top: 80px;
+    text-align: center;
+}
+
+#loginSection h2 {
+    font-size: 28px;
+    color: #333;
+    margin-bottom: 30px;
+    font-weight: 600;
+}
+
+/* Input Styles */
+.input-o {
+    width: 100%;
+    padding: 15px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-size: 16px;
+    color: #333;
+    background-color: #f9f9f9;
+    transition: all 0.3s ease;
+}
+
+.input-o:focus {
+    border-color: #007aff;
+    background-color: #ffffff;
+    outline: none;
+}
+
+/* Button Styles */
+button {
+    width: 100%;
+    padding: 15px;
+    background-color: #007aff;
+    color: #fff;
+    font-size: 16px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    background-color: #005bb5;
+}
+
+/* Register Button Styles */
+.btn-96 {
+    display: inline-block;
+    padding: 12px 20px;
+    background-color: #f0f0f5;
+    color: #007aff;
+    font-size: 16px;
+    border-radius: 8px;
+    text-align: center;
+    margin-top: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-96:hover {
+    background-color: #e0e0e5;
+    color: #005bb5;
+}
+
+/* Footer Section */
+h5 {
+    font-size: 14px;
+    color: #666;
+    margin-top: 20px;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 480px) {
+    #loginSection {
+        padding: 30px 20px;
+    }
+
+    #loginSection h2 {
+        font-size: 24px;
+    }
+
+    .navbar-title h1 {
+        font-size: 20px;
+    }
+}
+</style>
 </head>
 <body>
     <nav class="navbar">
