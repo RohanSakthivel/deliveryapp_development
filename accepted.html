@@ -196,11 +196,27 @@
             }
         }
 
-        function displayOrders(orders) {
+       function displayOrders(orders) {
     const orderContainer = document.getElementById('order-container');
     orderContainer.innerHTML = ''; // Clear previous content
 
+    // Separate orders into red (not delivered) and green (delivered)
+    const redOrders = [];
+    const greenOrders = [];
+
     for (const [orderId, details] of Object.entries(orders)) {
+        if (details.status === "Delivered") {
+            greenOrders.push({ orderId, details });
+        } else {
+            redOrders.push({ orderId, details });
+        }
+    }
+
+    // Combine red and green orders, with red orders first
+    const sortedOrders = [...redOrders, ...greenOrders];
+
+    // Render sorted orders
+    for (const { orderId, details } of sortedOrders) {
         const { total = "0", address = "N/A", status = "N/A", products = [], deliveryDeadline = "N/A" } = details;
 
         // Determine background color based on status
@@ -235,6 +251,7 @@
         orderContainer.insertAdjacentHTML('beforeend', orderHTML);
     }
 }
+
 
 
         function displayError(message) {
