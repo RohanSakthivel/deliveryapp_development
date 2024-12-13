@@ -217,7 +217,7 @@
 
     // Render sorted orders
     for (const { orderId, details } of sortedOrders) {
-        const { total = "0", address = "N/A", status = "N/A", products = [], deliveryDeadline = "N/A" } = details;
+        const { total = "0", address = "N/A", status = "N/A", products = [], deliveryDeadline = "N/A",latitude = "N/A",longitude ="N/A",mobile ="N/A",payment ="N/A" } = details;
 
         // Determine background color based on status
         const color = status === "Delivered" ? "#00fa9a" : "#ff5050";
@@ -235,6 +235,7 @@
                 <button onclick="scanningqr('${orderId}', '${total}', '${products.map(p => p.product).join(", ")}', '${address}', '${deliveryDeadline}')">
                     Scan QR Code
                 </button>
+                <img src="https://w7.pngwing.com/pngs/8/868/png-transparent-google-maps-hd-logo.png" style="height:50px,width:50px">
                 <div id="camera-container-${orderId}" class="card-camera"></div>
                 <div id="payment-qr-code-${orderId}" class="qr-code-container"></div>
                 <div id="success-message-${orderId}" class="success-message" style="display: none;">
