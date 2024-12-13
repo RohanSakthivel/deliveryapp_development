@@ -90,7 +90,6 @@
 
                     if (ordersSnapshot.empty) {
                         errorContainer.textContent = "No orders found.";
-                        // Reload the orders every 2 seconds if no orders are found
                         setTimeout(() => fetchOrders(userLat, userLon), 2000);
                         return;
                     }
@@ -149,6 +148,7 @@
                         await deleteDoc(orderRef);
 
                         alert(`Order ${orderId} accepted successfully!`);
+                        speak(`order:${orderId}`);
                         window.location.href = 'accepted.html'; 
                     } else {
                         alert('Order not found!');
@@ -168,6 +168,11 @@
                           Math.sin(dLon / 2) * Math.sin(dLon / 2);
                 const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
                 return R * c;
+            }
+
+            function speak(text) {
+                const msg = new SpeechSynthesisUtterance(text);
+                window.speechSynthesis.speak(msg);
             }
         });
     </script>
