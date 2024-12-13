@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en"> 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,6 +14,7 @@
         </div>
     </nav>
 
+    <!-- Dashboard Section -->
     <section id="dashboard">
         <h2 id="welcomeMessage">
             Welcome, <span id="userName"></span>!<br>Vehicle: <span id="vehicleType"></span>
@@ -46,7 +47,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', function () {
             const userName = localStorage.getItem('userName');
             const vehicleType = localStorage.getItem('vehicleType');
             const userEmail = localStorage.getItem('userEmail');
@@ -57,7 +58,6 @@
             getLocation();
 
             let refreshInterval;
-            let hasSpoken = false; // To ensure speaking happens only once per fetch
 
             function getLocation() {
                 if (navigator.geolocation) {
@@ -76,27 +76,14 @@
 
                 fetchOrders(latitude, longitude);
 
+                // Start refreshing orders every 1 second
                 refreshInterval = setInterval(() => fetchOrders(latitude, longitude), 1000);
             }
 
             function showError(error) {
-                const errorMessage = document.getElementById('error-message');
-                switch (error.code) {
-                    case error.PERMISSION_DENIED:
-                        errorMessage.textContent = "User denied the request for Geolocation.";
-                        break;
-                    case error.POSITION_UNAVAILABLE:
-                        errorMessage.textContent = "Location information is unavailable.";
-                        break;
-                    case error.TIMEOUT:
-                        errorMessage.textContent = "The request to get user location timed out.";
-                        break;
-                    default:
-                        errorMessage.textContent = "An unknown error occurred.";
-                        break;
-                }
+                alert("Error getting location.");
             }
-
+            
             async function fetchOrders(userLat, userLon) {
                 const orderContainer = document.getElementById('order-container');
                 orderContainer.innerHTML = '';
@@ -113,19 +100,22 @@
                         }
                     });
 
-                    if (orders.length > 0 && !hasSpoken) {
-                        hasSpoken = true;
-                        speak("New order has been placed!");
-
-                        orders.forEach(order => {
-                            const orderItem = document.createElement('div');
-                            orderItem.innerHTML = `
-                                <strong>Order ID:</strong> ${order.id} <br>
-                                <button class="acceptBtn" data-id="${order.id}">Accept Order</button>
-                            `;
-                            orderContainer.appendChild(orderItem);
-                            orderItem.querySelector('.acceptBtn').addEventListener('click', () => acceptOrder(order.id));
-                        });
+                    if (orders.length > 0) {
+                        // Stop refreshing once an order is found
+                        clearInterval(refreshInterval);
+                        const utterance = new SpeechSynthesisUtterance("order has been placed");
+                        utterance.pitch = 1;
+                        utterance.rate = 1;
+                        utterance.volume = 1;
+                        window.speechSynthesis.speak(utterance);
+                        const nextOrder = orders.shift();
+                        const orderItem = document.createElement('div');
+                        orderItem.innerHTML = 
+                            <strong>Order ID:</strong> ${nextOrder.id} <br>
+                            <button class="acceptBtn" data-id="${nextOrder.id}">Accept Order</button>
+                        ;
+                        orderContainer.appendChild(orderItem);
+                        orderItem.querySelector('.acceptBtn').addEventListener('click', () => acceptOrder(nextOrder.id));
                     }
                 } catch (error) {
                     console.error(error);
@@ -142,8 +132,9 @@
                         const orderDetails = orderDoc.data();
                         const userRef = doc(db, 'deliveryPartners', userEmail);
 
+                        // Update user profile with accepted order
                         await updateDoc(userRef, {
-                            [`ordersAccepted.${orderId}`]: {
+                            [ordersAccepted.${orderId}]: {
                                 total: orderDetails.total,
                                 address: orderDetails.address,
                                 status: 'Accepted',
@@ -157,34 +148,24 @@
                             }
                         });
 
+                        // Update order status
                         await updateDoc(orderRef, {
                             status: 'Accepted',
                             acceptedBy: userEmail,
                         });
 
+                        // Delete the order from the collection
                         await deleteDoc(orderRef);
 
-                        alert(`Order ${orderId} accepted successfully!`);
+                        alert(Order ${orderId} accepted successfully!);
+                        window.speechSynthesis.cancel();
                         window.location.href = 'accepted.html'; 
                     } else {
                         alert('Order not found!');
                     }
                 } catch (error) {
                     console.error('Error accepting order:', error);
-                    alert(`Failed to accept the order: ${error.message}`);
-                }
-            }
-
-            function speak(message) {
-                if (window.speechSynthesis) {
-                    const utterance = new SpeechSynthesisUtterance(message);
-                    utterance.pitch = 1;
-                    utterance.rate = 1;
-                    utterance.volume = 1;
-                    window.speechSynthesis.cancel();
-                    window.speechSynthesis.speak(utterance);
-                } else {
-                    console.warn('SpeechSynthesis API is not supported in this browser.');
+                    alert(Failed to accept the order: ${error.message});
                 }
             }
 
