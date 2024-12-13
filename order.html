@@ -14,7 +14,6 @@
         </div>
     </nav>
 
-    <!-- Dashboard Section -->
     <section id="dashboard">
         <h2 id="welcomeMessage">
             Welcome, <span id="userName"></span>!<br>Vehicle: <span id="vehicleType"></span>
@@ -47,160 +46,155 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        let isSpeaking = false;
-        let speakingInterval;
-        let refreshInterval;
-
         document.addEventListener('DOMContentLoaded', () => {
             const userName = localStorage.getItem('userName');
             const vehicleType = localStorage.getItem('vehicleType');
+            const userEmail = localStorage.getItem('userEmail');
 
             document.getElementById('userName').textContent = userName;
             document.getElementById('vehicleType').textContent = vehicleType;
 
             getLocation();
-        });
 
-        function getLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(showPosition, showError);
-            } else {
-                alert("Geolocation is not supported by this browser.");
-            }
-        }
+            let refreshInterval;
 
-        function showPosition(position) {
-            const latitude = position.coords.latitude;
-            const longitude = position.coords.longitude;
-
-            document.getElementById('latitude').textContent = latitude;
-            document.getElementById('longitude').textContent = longitude;
-
-            fetchOrders(latitude, longitude);
-            refreshInterval = setInterval(() => fetchOrders(latitude, longitude), 1000);
-        }
-
-        function showError(error) {
-            alert("Error getting location.");
-        }
-
-        function startSpeaking(orderIds) {
-            if (isSpeaking) return;
-            isSpeaking = true;
-
-            function speakOrders() {
-                const utterance = new SpeechSynthesisUtterance(`Orders available: ${orderIds.join(', ')}`);
-                utterance.pitch = 1;
-                utterance.rate = 1;
-                utterance.volume = 1;
-                window.speechSynthesis.speak(utterance);
-            }
-
-            speakOrders();
-            speakingInterval = setInterval(speakOrders, 5000);
-        }
-
-        function stopSpeaking() {
-            if (!isSpeaking) return;
-            isSpeaking = false;
-            clearInterval(speakingInterval);
-            window.speechSynthesis.cancel();
-        }
-
-        async function fetchOrders(userLat, userLon) {
-            const orderContainer = document.getElementById('order-container');
-            orderContainer.innerHTML = '';
-
-            try {
-                const ordersSnapshot = await getDocs(collection(db, 'orders'));
-                const orders = [];
-                const orderIds = [];
-
-                ordersSnapshot.forEach((doc) => {
-                    const orderData = doc.data();
-                    const distance = calculateDistance(userLat, userLon, orderData.latitude, orderData.longitude);
-                    if (distance <= 2) {
-                        orders.push({ id: doc.id, data: orderData });
-                        orderIds.push(doc.id);
-                    }
-                });
-
-                if (orders.length > 0) {
-                    clearInterval(refreshInterval);
-                    startSpeaking(orderIds);
-
-                    orders.forEach(order => {
-                        const orderItem = document.createElement('div');
-                        orderItem.innerHTML = `
-                            <strong>Order ID:</strong> ${order.id} <br>
-                            <button class="acceptBtn" data-id="${order.id}">Accept Order</button>
-                        `;
-                        orderContainer.appendChild(orderItem);
-                        orderItem.querySelector('.acceptBtn').addEventListener('click', () => acceptOrder(order.id));
-                    });
+            function getLocation() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(showPosition, showError);
                 } else {
-                    stopSpeaking();
+                    alert("Geolocation is not supported by this browser.");
                 }
-            } catch (error) {
-                console.error(error);
-                document.getElementById('error-message').textContent = 'Failed to load orders.';
             }
-        }
 
-        async function acceptOrder(orderId) {
-            try {
-                const orderRef = doc(db, 'orders', orderId);
-                const orderDoc = await getDoc(orderRef);
+            function showPosition(position) {
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
 
-                if (orderDoc.exists()) {
-                    const orderDetails = orderDoc.data();
-                    const userRef = doc(db, 'deliveryPartners', localStorage.getItem('userEmail'));
+                document.getElementById('latitude').textContent = latitude;
+                document.getElementById('longitude').textContent = longitude;
 
-                    await updateDoc(userRef, {
-                        [`ordersAccepted.${orderId}`]: {
-                            total: orderDetails.total,
-                            address: orderDetails.address,
-                            status: 'Accepted',
-                            payment: 'Not verified',
-                            mobile: orderDetails.mobileNumber,
-                            latitude: orderDetails.latitude,
-                            longitude: orderDetails.longitude,
-                            orderDate: orderDetails.timestamp || new Date().toISOString(),
-                            deliveryDeadline: orderDetails.deliveryDeadline || 'Not Provided',
-                            products: orderDetails.products || [],
+                fetchOrders(latitude, longitude);
+
+                refreshInterval = setInterval(() => fetchOrders(latitude, longitude), 1000);
+            }
+
+            function showError(error) {
+                const errorMessage = document.getElementById('error-message');
+                switch (error.code) {
+                    case error.PERMISSION_DENIED:
+                        errorMessage.textContent = "User denied the request for Geolocation.";
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        errorMessage.textContent = "Location information is unavailable.";
+                        break;
+                    case error.TIMEOUT:
+                        errorMessage.textContent = "The request to get user location timed out.";
+                        break;
+                    default:
+                        errorMessage.textContent = "An unknown error occurred.";
+                        break;
+                }
+            }
+
+            async function fetchOrders(userLat, userLon) {
+                const orderContainer = document.getElementById('order-container');
+                orderContainer.innerHTML = '';
+
+                try {
+                    const ordersSnapshot = await getDocs(collection(db, 'orders'));
+                    const orders = [];
+
+                    ordersSnapshot.forEach((doc) => {
+                        const orderData = doc.data();
+                        const distance = calculateDistance(userLat, userLon, orderData.latitude, orderData.longitude);
+                        if (distance <= 2) {
+                            orders.push({ id: doc.id, data: orderData });
                         }
                     });
 
-                    await updateDoc(orderRef, {
-                        status: 'Accepted',
-                        acceptedBy: localStorage.getItem('userEmail'),
-                    });
+                    if (orders.length > 0) {
+                        clearInterval(refreshInterval);
 
-                    await deleteDoc(orderRef);
+                        const utteranceText = "New order has been placed!";
+                        if (window.speechSynthesis) {
+                            window.speechSynthesis.cancel();
+                            const utterance = new SpeechSynthesisUtterance(utteranceText);
+                            utterance.pitch = 1;
+                            utterance.rate = 1;
+                            utterance.volume = 1;
+                            window.speechSynthesis.speak(utterance);
+                        }
 
-                    alert(`Order ${orderId} accepted successfully!`);
-                    stopSpeaking();
-                    window.location.href = 'accepted.html'; 
-                } else {
-                    alert('Order not found!');
+                        orders.forEach(order => {
+                            const orderItem = document.createElement('div');
+                            orderItem.innerHTML = `
+                                <strong>Order ID:</strong> ${order.id} <br>
+                                <button class="acceptBtn" data-id="${order.id}">Accept Order</button>
+                            `;
+                            orderContainer.appendChild(orderItem);
+                            orderItem.querySelector('.acceptBtn').addEventListener('click', () => acceptOrder(order.id));
+                        });
+                    }
+                } catch (error) {
+                    console.error(error);
+                    document.getElementById('error-message').textContent = 'Failed to load orders.';
                 }
-            } catch (error) {
-                console.error('Error accepting order:', error);
-                alert(`Failed to accept the order: ${error.message}`);
             }
-        }
 
-        function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371;
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            return R * c;
-        }
+            async function acceptOrder(orderId) {
+                try {
+                    const orderRef = doc(db, 'orders', orderId);
+                    const orderDoc = await getDoc(orderRef);
+
+                    if (orderDoc.exists()) {
+                        const orderDetails = orderDoc.data();
+                        const userRef = doc(db, 'deliveryPartners', userEmail);
+
+                        await updateDoc(userRef, {
+                            [`ordersAccepted.${orderId}`]: {
+                                total: orderDetails.total,
+                                address: orderDetails.address,
+                                status: 'Accepted',
+                                payment: 'Not verified',
+                                mobile: orderDetails.mobileNumber,
+                                latitude: orderDetails.latitude,
+                                longitude: orderDetails.longitude,
+                                orderDate: orderDetails.timestamp || new Date().toISOString(),
+                                deliveryDeadline: orderDetails.deliveryDeadline || 'Not Provided',
+                                products: orderDetails.products || [],
+                            }
+                        });
+
+                        await updateDoc(orderRef, {
+                            status: 'Accepted',
+                            acceptedBy: userEmail,
+                        });
+
+                        await deleteDoc(orderRef);
+
+                        alert(`Order ${orderId} accepted successfully!`);
+                        window.speechSynthesis.cancel();
+                        window.location.href = 'accepted.html'; 
+                    } else {
+                        alert('Order not found!');
+                    }
+                } catch (error) {
+                    console.error('Error accepting order:', error);
+                    alert(`Failed to accept the order: ${error.message}`);
+                }
+            }
+
+            function calculateDistance(lat1, lon1, lat2, lon2) {
+                const R = 6371;
+                const dLat = (lat2 - lat1) * Math.PI / 180;
+                const dLon = (lon2 - lon1) * Math.PI / 180;
+                const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                          Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                          Math.sin(dLon / 2) * Math.sin(dLon / 2);
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                return R * c;
+            }
+        });
     </script>
 </body>
 </html>
-
