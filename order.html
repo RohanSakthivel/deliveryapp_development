@@ -72,9 +72,10 @@
                 document.getElementById('latitude').textContent = latitude;
                 document.getElementById('longitude').textContent = longitude;
 
-                // Fetch orders initially and set up live updates
                 fetchOrders(latitude, longitude);
-                setInterval(() => fetchOrders(latitude, longitude), 1000); // Refresh orders every 1 second
+
+                // Refresh orders every 1 second
+                setInterval(() => fetchOrders(latitude, longitude), 1000);
             }
 
             function showError(error) {
@@ -87,19 +88,26 @@
 
                 try {
                     const ordersSnapshot = await getDocs(collection(db, 'orders'));
+                    const orders = [];
+
                     ordersSnapshot.forEach((doc) => {
                         const orderData = doc.data();
                         const distance = calculateDistance(userLat, userLon, orderData.latitude, orderData.longitude);
                         if (distance <= 2) {
-                            const orderItem = document.createElement('div');
-                            orderItem.innerHTML = `
-                                <strong>Order ID:</strong> ${doc.id} <br>
-                                <button class="acceptBtn" data-id="${doc.id}">Accept Order</button>
-                            `;
-                            orderContainer.appendChild(orderItem);
-                            orderItem.querySelector('.acceptBtn').addEventListener('click', () => acceptOrder(doc.id));
+                            orders.push({ id: doc.id, data: orderData });
                         }
                     });
+
+                    if (orders.length > 0) {
+                        const nextOrder = orders.shift();
+                        const orderItem = document.createElement('div');
+                        orderItem.innerHTML = `
+                            <strong>Order ID:</strong> ${nextOrder.id} <br>
+                            <button class="acceptBtn" data-id="${nextOrder.id}">Accept Order</button>
+                        `;
+                        orderContainer.appendChild(orderItem);
+                        orderItem.querySelector('.acceptBtn').addEventListener('click', () => acceptOrder(nextOrder.id));
+                    }
                 } catch (error) {
                     console.error(error);
                     document.getElementById('error-message').textContent = 'Failed to load orders.';
@@ -121,8 +129,8 @@
                                 total: orderDetails.total,
                                 address: orderDetails.address,
                                 status: 'Accepted',
-                                payment: 'Not verified',
-                                mobile: orderDetails.mobileNumber,
+                                payment:'Not verified',
+                                mobile:orderDetails.mobileNumber,
                                 latitude: orderDetails.latitude,
                                 longitude: orderDetails.longitude,
                                 orderDate: orderDetails.timestamp || new Date().toISOString(),
