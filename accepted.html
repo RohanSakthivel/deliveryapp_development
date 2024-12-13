@@ -130,12 +130,28 @@
             height: 50px;
             width: 50px;
         }
-        .map-box{
-            height: 150px; 
-            width: 70px; 
-            border-radius: 10px;
-            background-color: #ccff99;
-        }
+        .map-box {
+    height: 150px; 
+    width: 100px; /* Adjusted for better aspect ratio */
+    border-radius: 10px;
+    background-color: #ccff99;
+    display: flex;
+    justify-content: center; /* Centers content horizontally */
+    align-items: center; /* Centers content vertically */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Adds subtle shadow */
+    transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover effects */
+    text-align: center; /* Ensures text is centered */
+    font-family: Arial, sans-serif; /* Clean font */
+    font-size: 14px;
+    color: #333; /* Darker text for contrast */
+    margin: 10px; /* Adds spacing between cards */
+}
+
+.map-box:hover {
+    transform: translateY(-5px); /* Lift effect on hover */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); /* Enhanced shadow on hover */
+}
+
     </style>
 </head>
 
