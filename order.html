@@ -48,13 +48,12 @@
         const db = getFirestore(app);
 
         let isSpeaking = false;
-        let interval;
+        let speakingInterval;
         let refreshInterval;
 
         document.addEventListener('DOMContentLoaded', () => {
             const userName = localStorage.getItem('userName');
             const vehicleType = localStorage.getItem('vehicleType');
-            const userEmail = localStorage.getItem('userEmail');
 
             document.getElementById('userName').textContent = userName;
             document.getElementById('vehicleType').textContent = vehicleType;
@@ -85,26 +84,26 @@
             alert("Error getting location.");
         }
 
-        async function startSpeaking() {
+        function startSpeaking(orderIds) {
             if (isSpeaking) return;
             isSpeaking = true;
 
-            function speakOrder() {
-                const utterance = new SpeechSynthesisUtterance("Order has been placed");
+            function speakOrders() {
+                const utterance = new SpeechSynthesisUtterance(`Orders available: ${orderIds.join(', ')}`);
                 utterance.pitch = 1;
                 utterance.rate = 1;
                 utterance.volume = 1;
                 window.speechSynthesis.speak(utterance);
             }
 
-            speakOrder();
-            interval = setInterval(speakOrder, 2000);
+            speakOrders();
+            speakingInterval = setInterval(speakOrders, 5000);
         }
 
         function stopSpeaking() {
             if (!isSpeaking) return;
             isSpeaking = false;
-            clearInterval(interval);
+            clearInterval(speakingInterval);
             window.speechSynthesis.cancel();
         }
 
@@ -115,18 +114,20 @@
             try {
                 const ordersSnapshot = await getDocs(collection(db, 'orders'));
                 const orders = [];
+                const orderIds = [];
 
                 ordersSnapshot.forEach((doc) => {
                     const orderData = doc.data();
                     const distance = calculateDistance(userLat, userLon, orderData.latitude, orderData.longitude);
                     if (distance <= 2) {
                         orders.push({ id: doc.id, data: orderData });
+                        orderIds.push(doc.id);
                     }
                 });
 
                 if (orders.length > 0) {
                     clearInterval(refreshInterval);
-                    startSpeaking();
+                    startSpeaking(orderIds);
 
                     orders.forEach(order => {
                         const orderItem = document.createElement('div');
@@ -137,6 +138,8 @@
                         orderContainer.appendChild(orderItem);
                         orderItem.querySelector('.acceptBtn').addEventListener('click', () => acceptOrder(order.id));
                     });
+                } else {
+                    stopSpeaking();
                 }
             } catch (error) {
                 console.error(error);
@@ -200,3 +203,4 @@
     </script>
 </body>
 </html>
+
