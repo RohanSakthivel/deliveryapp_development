@@ -43,7 +43,7 @@ body {
 
 #acceptedOrders {
     padding: 40px 20px;
-    max-width: 800px;
+    max-width: 1200px;
     margin: 0 auto;
 }
 
@@ -56,7 +56,11 @@ h2 {
 }
 
 #order-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
     margin-top: 30px;
+    justify-content: center;
 }
 
 .order-item {
@@ -64,9 +68,11 @@ h2 {
     border: 1px solid #d2d2d7;
     border-radius: 12px;
     padding: 20px;
-    margin-bottom: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    flex: 1 1 calc(33.333% - 20px);
+    max-width: calc(33.333% - 20px);
+    box-sizing: border-box;
 }
 
 .order-item:hover {
@@ -128,8 +134,17 @@ button:hover {
     margin-top: 30px;
 }
 
+@media (max-width: 900px) {
+    .order-item {
+        flex: 1 1 calc(50% - 20px);
+        max-width: calc(50% - 20px);
+    }
+}
+
 @media (max-width: 600px) {
     .order-item {
+        flex: 1 1 100%;
+        max-width: 100%;
         font-size: 14px;
         padding: 15px;
     }
