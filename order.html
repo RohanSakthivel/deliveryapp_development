@@ -106,10 +106,10 @@
 
                         const nextOrder = orders.shift();
                         const orderItem = document.createElement('div');
-                        orderItem.innerHTML = 
+                        orderItem.innerHTML = `
                             <strong>Order ID:</strong> ${nextOrder.id} <br>
                             <button class="acceptBtn" data-id="${nextOrder.id}">Accept Order</button>
-                        ;
+                        `;
                         orderContainer.appendChild(orderItem);
                         orderItem.querySelector('.acceptBtn').addEventListener('click', () => acceptOrder(nextOrder.id));
                     }
@@ -130,7 +130,7 @@
 
                         // Update user profile with accepted order
                         await updateDoc(userRef, {
-                            [ordersAccepted.${orderId}]: {
+                            [`ordersAccepted.${orderId}`]: {
                                 total: orderDetails.total,
                                 address: orderDetails.address,
                                 status: 'Accepted',
@@ -153,14 +153,14 @@
                         // Delete the order from the collection
                         await deleteDoc(orderRef);
 
-                        alert(Order ${orderId} accepted successfully!);
+                        alert(`Order ${orderId} accepted successfully!`);
                         window.location.href = 'accepted.html'; 
                     } else {
                         alert('Order not found!');
                     }
                 } catch (error) {
                     console.error('Error accepting order:', error);
-                    alert(Failed to accept the order: ${error.message});
+                    alert(`Failed to accept the order: ${error.message}`);
                 }
             }
 
