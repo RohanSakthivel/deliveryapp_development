@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zoloww - Delivery Partner Login</title>
     <style>/* General Reset */
+/* General Reset */
 * {
     margin: 0;
     padding: 0;
@@ -21,6 +22,7 @@ body {
     align-items: center;
     height: 100vh;
     padding: 20px;
+    overflow: hidden;
 }
 
 /* Navbar Styles */
@@ -30,12 +32,13 @@ body {
     align-items: center;
     padding: 20px;
     background-color: #ffffff;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     width: 100%;
     position: fixed;
     top: 0;
     left: 0;
     z-index: 1000;
+    border-bottom: 1px solid #e0e0e0;
 }
 
 .navbar-title {
@@ -50,83 +53,102 @@ body {
 }
 
 .navbar-title h1 {
-    font-size: 24px;
+    font-size: 26px;
     color: #333;
     font-weight: 600;
+    letter-spacing: 1px;
 }
 
 /* Login Section Styles */
 #loginSection {
     background-color: #ffffff;
     padding: 40px 30px;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     width: 100%;
-    max-width: 400px;
+    max-width: 450px;
     margin-top: 80px;
     text-align: center;
+    transition: all 0.3s ease-in-out;
+}
+
+#loginSection:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.2);
 }
 
 #loginSection h2 {
-    font-size: 28px;
+    font-size: 30px;
     color: #333;
-    margin-bottom: 30px;
+    margin-bottom: 25px;
     font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
 }
 
 /* Input Styles */
 .input-o {
     width: 100%;
-    padding: 15px;
-    margin: 10px 0;
+    padding: 16px;
+    margin: 12px 0;
     border: 1px solid #ccc;
-    border-radius: 10px;
+    border-radius: 12px;
     font-size: 16px;
     color: #333;
     background-color: #f9f9f9;
     transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
 .input-o:focus {
     border-color: #007aff;
     background-color: #ffffff;
     outline: none;
+    box-shadow: 0 4px 10px rgba(0, 122, 255, 0.3);
 }
 
 /* Button Styles */
 button {
     width: 100%;
-    padding: 15px;
+    padding: 16px;
     background-color: #007aff;
     color: #fff;
-    font-size: 16px;
+    font-size: 18px;
     border: none;
-    border-radius: 10px;
+    border-radius: 12px;
     cursor: pointer;
     transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 122, 255, 0.2);
 }
 
 button:hover {
     background-color: #005bb5;
+    transform: translateY(-3px);
+}
+
+button:active {
+    transform: translateY(1px);
 }
 
 /* Register Button Styles */
 .btn-96 {
     display: inline-block;
-    padding: 12px 20px;
+    padding: 14px 22px;
     background-color: #f0f0f5;
     color: #007aff;
     font-size: 16px;
-    border-radius: 8px;
+    border-radius: 10px;
     text-align: center;
-    margin-top: 20px;
+    margin-top: 25px;
     cursor: pointer;
     transition: all 0.3s ease;
+    border: 1px solid #ccc;
 }
 
 .btn-96:hover {
     background-color: #e0e0e5;
     color: #005bb5;
+    box-shadow: 0 4px 10px rgba(0, 122, 255, 0.1);
 }
 
 /* Footer Section */
@@ -136,6 +158,11 @@ h5 {
     margin-top: 20px;
 }
 
+/* Focused Input Accessibility */
+.input-o:focus-visible {
+    outline: 3px solid #007aff;
+}
+
 /* Mobile Responsiveness */
 @media (max-width: 480px) {
     #loginSection {
@@ -143,13 +170,22 @@ h5 {
     }
 
     #loginSection h2 {
-        font-size: 24px;
+        font-size: 26px;
     }
 
     .navbar-title h1 {
-        font-size: 20px;
+        font-size: 22px;
+    }
+
+    button {
+        font-size: 16px;
+    }
+
+    .btn-96 {
+        font-size: 14px;
     }
 }
+
 </style>
 </head>
 <body>
