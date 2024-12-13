@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"> 
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -57,6 +57,7 @@
             getLocation();
 
             let refreshInterval;
+            let hasSpoken = false; // To ensure speaking happens only once per fetch
 
             function getLocation() {
                 if (navigator.geolocation) {
@@ -112,18 +113,9 @@
                         }
                     });
 
-                    if (orders.length > 0) {
-                        clearInterval(refreshInterval);
-
-                        const utteranceText = "New order has been placed!";
-                        if (window.speechSynthesis) {
-                            window.speechSynthesis.cancel();
-                            const utterance = new SpeechSynthesisUtterance(utteranceText);
-                            utterance.pitch = 1;
-                            utterance.rate = 1;
-                            utterance.volume = 1;
-                            window.speechSynthesis.speak(utterance);
-                        }
+                    if (orders.length > 0 && !hasSpoken) {
+                        hasSpoken = true;
+                        speak("New order has been placed!");
 
                         orders.forEach(order => {
                             const orderItem = document.createElement('div');
@@ -173,7 +165,6 @@
                         await deleteDoc(orderRef);
 
                         alert(`Order ${orderId} accepted successfully!`);
-                        window.speechSynthesis.cancel();
                         window.location.href = 'accepted.html'; 
                     } else {
                         alert('Order not found!');
@@ -181,6 +172,19 @@
                 } catch (error) {
                     console.error('Error accepting order:', error);
                     alert(`Failed to accept the order: ${error.message}`);
+                }
+            }
+
+            function speak(message) {
+                if (window.speechSynthesis) {
+                    const utterance = new SpeechSynthesisUtterance(message);
+                    utterance.pitch = 1;
+                    utterance.rate = 1;
+                    utterance.volume = 1;
+                    window.speechSynthesis.cancel();
+                    window.speechSynthesis.speak(utterance);
+                } else {
+                    console.warn('SpeechSynthesis API is not supported in this browser.');
                 }
             }
 
