@@ -349,8 +349,8 @@ height:auto;
                 <div id="payment-qr-code-${orderId}" class="qr-code-container"></div>
                 <div id="success-message-${orderId}" class="success-message" style="display: none;">
                     <img src="https://www.pngmart.com/files/20/Success-Transparent-Background.png" class="map-image">
-                    <h2>Order Successfully Completed!</h2>
-                    <button onclick="redirectToPaymentPage('${orderId}')">Proceed to Payment</button>
+                    <h2>Order Successfully Verified!</h2>
+                    <p>After get the payment from the customer just cleanly verify payment and click on the "Mark as Delivered"</p>
                     <button onclick="markAsDelivered('${localStorage.getItem('userEmail')}', '${orderId}', '${deliveryDeadline}')">
                         Mark as Delivered
                     </button>
