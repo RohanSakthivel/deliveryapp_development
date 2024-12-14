@@ -327,10 +327,11 @@ height:auto;
 
         // Determine background color based on status
         const color = status === "Delivered" ? "#00fa9a" : "#ff5050";
+        const textcolor = status === "Delivered" ? "color: black;" : "color: white;";
 
         // Generate HTML for each order
         const orderHTML = `
-            <div class="order-item" style="background-color: ${color}; padding: 10px; margin-bottom: 10px; border-radius: 5px;">
+            <div class="order-item" style="${textcolor} background-color: ${color}; padding: 10px; margin-bottom: 10px; border-radius: 5px;">
                 <strong>Order ID:</strong> ${orderId}<br>
                 <strong>Status:</strong> ${status}<br>
                 <strong>Total:</strong> ₹${total}<br>
