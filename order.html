@@ -192,7 +192,20 @@ button:hover {
   }
 }
 
-
+.container {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 19px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .stats {
+            font-size: 1.2rem;
+            margin: 10px 0;
+        }
     </style>
 </head>
 <body>
@@ -208,6 +221,13 @@ button:hover {
         <h2 id="welcomeMessage">
             Welcome, <span id="userName"></span>!<br>Vehicle: <span id="vehicleType"></span>
         </h2>
+
+        <div class="container">
+          <h1>Order Summary</h1>
+          <div class="stats" id="total-orders">Total Orders: Loading...</div>
+          <div class="stats" id="accepted-orders">Accepted Orders: Loading...</div>
+          <div class="stats" id="delivered-orders">Delivered Orders: Loading...</div>
+      </div>
 
         <div id="locationDisplay">
             <p><strong>Latitude:</strong> <span id="latitude"></span></p>
@@ -238,7 +258,54 @@ button:hover {
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        
+        async function fetchOrderSummary() {
+            const userEmail = localStorage.getItem('userEmail');
 
+            if (!userEmail) {
+                alert("User email not found. Redirecting to login...");
+                window.location.href = '/index.html';
+                return;
+            }
+
+            try {
+                const userRef = doc(db, 'deliveryPartners', userEmail);
+                const userDoc = await getDoc(userRef);
+
+                if (userDoc.exists()) {
+                    const ordersAccepted = userDoc.data().ordersAccepted || {};
+                    let totalOrders = 0;
+                    let acceptedOrders = 0;
+                    let deliveredOrders = 0;
+
+                    for (const orderId in ordersAccepted) {
+                        totalOrders++;
+                        const order = ordersAccepted[orderId];
+                        if (order.status === "Accepted") {
+                            acceptedOrders++;
+                        } else if (order.status === "Delivered") {
+                            deliveredOrders++;
+                        }
+                    }
+
+                    document.getElementById('total-orders').textContent = `Total Orders: ${totalOrders}`;
+                    document.getElementById('accepted-orders').textContent = `Accepted Orders: ${acceptedOrders}`;
+                    document.getElementById('delivered-orders').textContent = `Delivered Orders: ${deliveredOrders}`;
+
+                    // Redirect if Accepted Orders > 0
+                    if (acceptedOrders > 0) {
+                        window.location.href = '/accepted.html';
+                    }
+                } else {
+                    alert("No orders found for this user.");
+                }
+            } catch (error) {
+                console.error("Error fetching order summary:", error);
+                alert("An error occurred while fetching order data.");
+            }
+        }
+
+        fetchOrderSummary();
         document.addEventListener('DOMContentLoaded', () => {
             const userName = localStorage.getItem('userName');
             const vehicleType = localStorage.getItem('vehicleType');
