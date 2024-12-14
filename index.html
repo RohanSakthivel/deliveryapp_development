@@ -4,199 +4,164 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zoloww - Delivery Partner Login</title>
-    <style>/* General Reset */
-//* General Reset */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-/* Body Styles */
-body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    background-color: #f7f7f7; /* Soft off-white background */
-    color: #333;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    padding: 20px;
-    overflow: hidden;
-    transition: background-color 0.3s ease;
-}
+        /* Body Styles */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f7f7f7;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 20px;
+            overflow: hidden;
+            transition: background-color 0.3s ease;
+        }
 
-/* Navbar Styles */
-.navbar {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 15px 20px;
-    background-color: #ffffff;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 1000;
-    border-bottom: 1px solid #e0e0e0;
-    border-radius: 0 0 20px 20px;
-}
+        /* Navbar Styles */
+        .navbar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px 20px;
+            background-color: #ffffff;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            border-bottom: 1px solid #e0e0e0;
+            border-radius: 0 0 20px 20px;
+        }
 
-.navbar-title {
-    display: flex;
-    align-items: center;
-}
+        .navbar-title {
+            display: flex;
+            align-items: center;
+        }
 
-.navbar-title img {
-    width: 40px;
-    height: 40px;
-    margin-right: 15px;
-}
+        .navbar-title img {
+            width: 40px;
+            height: 40px;
+            margin-right: 15px;
+        }
 
-.navbar-title h1 {
-    font-size: 30px;
-    color: #333;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-}
+        .navbar-title h1 {
+            font-size: 30px;
+            color: #333;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
 
-/* Login Section Styles */
-#loginSection {
-    background-color: #ffffff;
-    padding: 40px 35px;
-    border-radius: 20px;
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 480px;
-    margin-top: 80px;
-    text-align: center;
-    transition: all 0.3s ease-in-out;
-    transform: scale(0.98);
-}
+        /* Login Section Styles */
+        #loginSection {
+            background-color: #ffffff;
+            padding: 40px 35px;
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 480px;
+            margin-top: 80px;
+            text-align: center;
+            transition: all 0.3s ease-in-out;
+            transform: scale(0.98);
+        }
 
-#loginSection:hover {
-    transform: scale(1);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-}
+        #loginSection:hover {
+            transform: scale(1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
 
-#loginSection h2 {
-    font-size: 32px;
-    color: #333;
-    margin-bottom: 30px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: #333;
-}
+        #loginSection h2 {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 30px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
 
-/* Input Styles */
-.input-o {
-    width: 100%;
-    padding: 18px;
-    margin: 15px 0;
-    border: 1px solid #ccc;
-    border-radius: 15px;
-    font-size: 16px;
-    color: #333;
-    background-color: #f7f7f7;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-    font-weight: 400;
-}
+        /* Input Styles */
+        .input-o {
+            width: 100%;
+            padding: 18px;
+            margin: 15px 0;
+            border: 1px solid #ccc;
+            border-radius: 15px;
+            font-size: 16px;
+            background-color: #f7f7f7;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
 
-.input-o:focus {
-    border-color: #007aff;
-    background-color: #ffffff;
-    outline: none;
-    box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3);
-}
+        .input-o:focus {
+            border-color: #007aff;
+            background-color: #ffffff;
+            outline: none;
+            box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3);
+        }
 
-/* Button Styles */
-button {
-    width: 100%;
-    padding: 18px;
-    background-color: #007aff;
-    color: #fff;
-    font-size: 18px;
-    border: none;
-    border-radius: 15px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 5px 15px rgba(0, 122, 255, 0.2);
-    font-weight: 600;
-    letter-spacing: 0.5px;
-}
+        /* Button Styles */
+        button {
+            width: 100%;
+            padding: 18px;
+            background-color: #007aff;
+            color: #fff;
+            font-size: 18px;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 122, 255, 0.2);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
 
-button:hover {
-    background-color: #005bb5;
-    transform: translateY(-3px);
-}
+        button:hover {
+            background-color: #005bb5;
+            transform: translateY(-3px);
+        }
 
-button:active {
-    transform: translateY(1px);
-}
+        button:active {
+            transform: translateY(1px);
+        }
 
-/* Register Button Styles */
-.btn-96 {
-    display: inline-block;
-    padding: 14px 22px;
-    background-color: #f0f0f5;
-    color: #007aff;
-    font-size: 16px;
-    border-radius: 12px;
-    text-align: center;
-    margin-top: 30px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border: 1px solid #ccc;
-    font-weight: 500;
-}
+        /* Footer Section */
+        h5 {
+            font-size: 14px;
+            color: #666;
+            margin-top: 20px;
+            letter-spacing: 0.5px;
+        }
 
-.btn-96:hover {
-    background-color: #e0e0e5;
-    color: #005bb5;
-    box-shadow: 0 4px 10px rgba(0, 122, 255, 0.1);
-}
+        /* Mobile Responsiveness */
+        @media (max-width: 480px) {
+            #loginSection {
+                padding: 35px 25px;
+            }
 
-/* Footer Section */
-h5 {
-    font-size: 14px;
-    color: #666;
-    margin-top: 20px;
-    letter-spacing: 0.5px;
-}
+            #loginSection h2 {
+                font-size: 28px;
+            }
 
-/* Focused Input Accessibility */
-.input-o:focus-visible {
-    outline: 3px solid #007aff;
-}
+            .navbar-title h1 {
+                font-size: 24px;
+            }
 
-/* Mobile Responsiveness */
-@media (max-width: 480px) {
-    #loginSection {
-        padding: 35px 25px;
-    }
-
-    #loginSection h2 {
-        font-size: 28px;
-    }
-
-    .navbar-title h1 {
-        font-size: 24px;
-    }
-
-    button {
-        font-size: 16px;
-    }
-
-    .btn-96 {
-        font-size: 14px;
-    }
-}
-
-</style>
+            button {
+                font-size: 16px;
+            }
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar">
@@ -238,6 +203,14 @@ h5 {
         const db = getFirestore(app);
 
         document.addEventListener('DOMContentLoaded', function () {
+            const token = localStorage.getItem('authToken');
+
+            // Check if user is already logged in
+            if (token) {
+                window.location.href = 'order.html';
+                return;
+            }
+
             document.getElementById('loginForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
 
@@ -251,6 +224,9 @@ h5 {
                     if (docSnap.exists()) {
                         const userData = docSnap.data();
                         if (userData.password === loginPassword) {
+                            // Save auth token to localStorage
+                            const authToken = `${userEmail}-${new Date().getTime()}`;
+                            localStorage.setItem('authToken', authToken);
                             localStorage.setItem('userName', userData.partnerName);
                             localStorage.setItem('vehicleType', userData.vehicleType);
                             localStorage.setItem('userEmail', userEmail);
