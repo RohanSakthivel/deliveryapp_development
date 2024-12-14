@@ -332,14 +332,14 @@ height:auto;
         // Generate HTML for each order
         const orderHTML = `
             <div class="order-item" style="${textcolor} background-color: ${color}; padding: 10px; margin-bottom: 10px; border-radius: 5px;">
-                <strong>Order ID:</strong> ${orderId}<br>
-                <strong>Status:</strong> ${status}<br>
-                <strong>Total:</strong> ₹${total}<br>
-                <strong>Delivery Deadline:</strong> ${deliveryDeadline}<br>
-                <strong>Address:</strong> ${address}<br>
-                <strong>Payment Status:</strong> ${payment}<br>
-                <strong>Mobile Number:</strong> ${mobile}<br>
-                <strong>Products:</strong>
+                <strong style="${textcolor}">Order ID:</strong> ${orderId}<br>
+                <strong style="${textcolor}">Status:</strong> ${status}<br>
+                <strong style="${textcolor}">Total:</strong> ₹${total}<br>
+                <strong style="${textcolor}">Delivery Deadline:</strong> ${deliveryDeadline}<br>
+                <strong style="${textcolor}">Address:</strong> ${address}<br>
+                <strong style="${textcolor}">Payment Status:</strong> ${payment}<br>
+                <strong style="${textcolor}">Mobile Number:</strong> ${mobile}<br>
+                <strong style="${textcolor}">Products:</strong>
                 <ul>${products.map(p => `<li>${p.product} (₹${p.price})</li>`).join('')}</ul>
                 <img onclick="scanningqr('${orderId}', '${total}', '${products.map(p => p.product).join(", ")}', '${address}', '${deliveryDeadline}')" src="https://images-na.ssl-images-amazon.com/images/I/41C68Cd9eoL.png" class="map-image">
                  <a href="https://www.google.com/maps?q=${latitude},${longitude}">
