@@ -326,12 +326,13 @@ height:auto;
         const { total = "0", address = "N/A", status = "N/A", products = [], deliveryDeadline = "N/A",latitude = "N/A",longitude ="N/A",mobile ="N/A",payment ="N/A" } = details;
 
         // Determine background color based on status
+        const imple = "box-shadow: 0 4px 6px rgba(255, 0, 0, 0.1);animation: popShadow 1s ease-in-out infinite;@keyframes popShadow {0% {box-shadow: 0 4px 6px rgba(255, 0, 0, 0.1);}50% {box-shadow: 0 8px 15px rgba(255, 0, 0, 0.3); }100% {box-shadow: 0 4px 6px rgba(255, 0, 0, 0.1);}}";
         const color = status === "Delivered" ? "#00fa9a" : "#ff5050";
-        const textcolor = status === "Delivered" ? "color: black;" : "color: white;";
+        const textcolor = status === "Delivered" ? "color: black;" : `color: white;${imple}`;
 
         // Generate HTML for each order
         const orderHTML = `
-            <div class="order-item" style="${textcolor} background-color: ${color}; padding: 10px; margin-bottom: 10px; border-radius: 5px;">
+            <div class="order-item" style="${textcolor}  background-color: ${color}; padding: 10px; margin-bottom: 10px; border-radius: 5px;">
                 <strong style="${textcolor}">Order ID:</strong> ${orderId}<br>
                 <strong style="${textcolor}">Status:</strong> ${status}<br>
                 <strong style="${textcolor}">Total:</strong> ₹${total}<br>
