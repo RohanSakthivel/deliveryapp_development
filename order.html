@@ -197,6 +197,7 @@ button:hover {
         <div class="navbar-title">
             <img src="logo.png" alt="Zoloww Logo">
             <h1>Zoloww</h1>
+            <button class="logout-btn" id="logoutButton">Logout</button>
         </div>
     </nav>
 
@@ -241,6 +242,12 @@ button:hover {
             document.getElementById('vehicleType').textContent = vehicleType;
 
             getLocation();
+
+            const logoutButton = document.getElementById('logoutButton');
+            logoutButton.addEventListener('click', () => {
+                localStorage.clear(); // Clear all stored session data
+                window.location.href = 'login.html'; // Redirect to login page
+            });
 
             let refreshInterval;
 
