@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zoloww - Orders</title>
     <style>
-        .container1 {
+ .container1 {
   width: 100%;
   height: 380px;
   border-radius: 20px;
@@ -14,7 +14,7 @@
   align-items: center;
   justify-content: flex-start;
   filter: hue-rotate(10deg);
-  color: #39bbd3; /* Changed from green to blue */
+  color: #0071e3; /* Changed to dark blue */
   gap: 20px;
 }
 
@@ -35,7 +35,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid #18A7D3; /* Changed from green to blue */
+  border: 2px solid #0071e3; /* Changed to dark blue */
   overflow: hidden;
 }
 
@@ -57,16 +57,16 @@
   height: 200px;
   left: 49%;
   transform: rotate(-4deg);
-  background-color: #18A7D3; /* Changed from green to blue */
+  background-color: #0071e3; /* Changed to dark blue */
   animation: rotate 3s linear infinite;
-  box-shadow: 0 0 10px 10px #39bbd3; /* Changed from green to blue */
+  box-shadow: 0 0 10px 10px #0071e3; /* Changed to dark blue */
   z-index: 6;
 }
 
 .circle {
   width: 100px;
   height: 100px;
-  border: 2px solid #18A7D3; /* Changed from green to blue */
+  border: 2px solid #0071e3; /* Changed to dark blue */
   border-radius: 50%;
 }
 
@@ -78,7 +78,7 @@
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  border: 2px solid #18A7D3; /* Changed from green to blue */
+  border: 2px solid #0071e3; /* Changed to dark blue */
   border-radius: 50%;
 }
 
@@ -90,7 +90,7 @@
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  border: 2px solid #18A7D3; /* Changed from green to blue */
+  border: 2px solid #0071e3; /* Changed to dark blue */
   border-radius: 50%;
 }
 
@@ -98,7 +98,7 @@
   width: 4px;
   height: 4px;
   top: 30%;
-  background-color: #18A7D3; /* Changed from green to blue */
+  background-color: #0071e3; /* Changed to dark blue */
   border-radius: 50%;
   position: absolute;
   animation: doted 1.5s ease infinite;
@@ -109,7 +109,7 @@
   height: 4px;
   top: 80%;
   right: 30%;
-  background-color: #18A7D3; /* Changed from green to blue */
+  background-color: #0071e3; /* Changed to dark blue */
   border-radius: 50%;
   position: absolute;
   animation: doted 1.5s 1.2s ease infinite;
@@ -128,17 +128,17 @@
 @keyframes doted {
   0% {
     transform: scale(0.95);
-    box-shadow: 0 0 10px 5px rgba(24, 167, 211, 0.3), 0 0 10px 10px rgba(24, 167, 211, 0.3); /* Changed from green to blue */
+    box-shadow: 0 0 10px 5px rgba(0, 113, 227, 0.3), 0 0 10px 10px rgba(0, 113, 227, 0.3); /* Changed to dark blue */
   }
 
   60% {
     transform: scale(0.95);
-    box-shadow: 0 0 10px 5px rgba(24, 167, 211, 0.3), 0 0 10px 10px rgba(24, 167, 211, 0.3); /* Changed from green to blue */
+    box-shadow: 0 0 10px 5px rgba(0, 113, 227, 0.3), 0 0 10px 10px rgba(0, 113, 227, 0.3); /* Changed to dark blue */
   }
 
   100% {
     transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(24, 167, 211, 0.7), 0 0 0 0 rgba(24, 167, 211, 0.5), 0 0 0 0 rgba(24, 167, 211, 0.3); /* Changed from green to blue */
+    box-shadow: 0 0 0 0 rgba(0, 113, 227, 0.7), 0 0 0 0 rgba(0, 113, 227, 0.5), 0 0 0 0 rgba(0, 113, 227, 0.3); /* Changed to dark blue */
     opacity: 0;
   }
 }
@@ -371,7 +371,7 @@ button:hover {
        
  <div class="container1">
       <div class="data">
-        <p>Latitude:<span id="latitude"></span> And Longitude:<span id="longitude"></p>
+        <p>Latitude:<span id="latitude"></span>  Longitude:<span id="longitude"></p>
       </div>
       <div class="card1">
         <div class="circle"></div>
@@ -379,10 +379,7 @@ button:hover {
         <div class="dot2"></div>
       </div>
     </div>
-        <div id="locationDisplay">
-            <p><strong>Latitude:</strong> <span id="latitude"></span></p>
-            <p><strong>Longitude:</strong> <span id="longitude"></span></p>
-        </div>
+       
     
     </section>
     
