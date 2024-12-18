@@ -5,9 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zoloww - Orders</title>
     <style>
-        /* From Uiverse.io by Javierrocadev */ 
-.container1 {
-  width: 280px;
+        .container1 {
+  width: 100%;
   height: 380px;
   border-radius: 20px;
   display: flex;
@@ -15,7 +14,7 @@
   align-items: center;
   justify-content: flex-start;
   filter: hue-rotate(10deg);
-  color: #2fbb39;
+  color: #39bbd3; /* Changed from green to blue */
   gap: 20px;
 }
 
@@ -24,43 +23,19 @@
   border: 2px solid;
   padding: 15px;
   border-radius: 5px;
-  background: #000000;
-}
-
-.data::after {
-  background: #000000;
-  content: "WIND - 54,3";
-  position: absolute;
-  bottom: 5%;
-  right: 5%;
-  border: 2px solid;
-  padding: 3px;
-  border-radius: 5px;
-  font-size: .7em;
-}
-
-.data::before {
-  content: "DEPT - 600";
-  position: absolute;
-  bottom: 5%;
-  left: 5%;
-  border: 2px solid;
-  padding: 3px;
-  border-radius: 5px;
-  font-size: .7em;
-  background: #000000;
+  background: 0#00000;
 }
 
 .card1 {
   width: 200px;
   height: 200px;
-  background: #000000;
+  background: transparent;
   border-radius: 50%;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid #18D322;
+  border: 2px solid #18A7D3; /* Changed from green to blue */
   overflow: hidden;
 }
 
@@ -70,7 +45,7 @@
   width: 2px;
   height: 200px;
   left: 49%;
-  background-color: #18D322;
+  background-color: transparent;
   animation: rotate 3s linear infinite;
   z-index: 6;
 }
@@ -82,16 +57,16 @@
   height: 200px;
   left: 49%;
   transform: rotate(-4deg);
-  background-color: #18D322;
+  background-color: #18A7D3; /* Changed from green to blue */
   animation: rotate 3s linear infinite;
-  box-shadow: 0 0 10px 10px #2fbb39;
+  box-shadow: 0 0 10px 10px #39bbd3; /* Changed from green to blue */
   z-index: 6;
 }
 
 .circle {
   width: 100px;
   height: 100px;
-  border: 2px solid #18D322;
+  border: 2px solid #18A7D3; /* Changed from green to blue */
   border-radius: 50%;
 }
 
@@ -102,8 +77,8 @@
   height: 50px;
   left: 50%;
   top: 50%;
-  transform: translate(-50%,-50%);
-  border: 2px solid #18D322;
+  transform: translate(-50%, -50%);
+  border: 2px solid #18A7D3; /* Changed from green to blue */
   border-radius: 50%;
 }
 
@@ -114,8 +89,8 @@
   height: 150px;
   left: 50%;
   top: 50%;
-  transform: translate(-50%,-50%);
-  border: 2px solid #18D322;
+  transform: translate(-50%, -50%);
+  border: 2px solid #18A7D3; /* Changed from green to blue */
   border-radius: 50%;
 }
 
@@ -123,10 +98,10 @@
   width: 4px;
   height: 4px;
   top: 30%;
-  background-color: #18D322;
+  background-color: #18A7D3; /* Changed from green to blue */
   border-radius: 50%;
   position: absolute;
-  animation: doted 1.5s  ease infinite;
+  animation: doted 1.5s ease infinite;
 }
 
 .dot2 {
@@ -134,10 +109,10 @@
   height: 4px;
   top: 80%;
   right: 30%;
-  background-color: #18D322;
+  background-color: #18A7D3; /* Changed from green to blue */
   border-radius: 50%;
   position: absolute;
-  animation: doted 1.5s  1.2s ease infinite;
+  animation: doted 1.5s 1.2s ease infinite;
 }
 
 @keyframes rotate {
@@ -153,20 +128,21 @@
 @keyframes doted {
   0% {
     transform: scale(0.95);
-    box-shadow: 0 0 10px 5px rgba(24, 211, 33, 0.3),0 0 10px 10px rgba(24, 211, 33, 0.3);
+    box-shadow: 0 0 10px 5px rgba(24, 167, 211, 0.3), 0 0 10px 10px rgba(24, 167, 211, 0.3); /* Changed from green to blue */
   }
 
   60% {
     transform: scale(0.95);
-    box-shadow: 0 0 10px 5px rgba(24, 211, 33, 0.3),0 0 10px 10px rgba(24, 211, 33, 0.3);
+    box-shadow: 0 0 10px 5px rgba(24, 167, 211, 0.3), 0 0 10px 10px rgba(24, 167, 211, 0.3); /* Changed from green to blue */
   }
 
   100% {
     transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(24, 211, 33, 0.7),0 0 0 0 rgba(24, 211, 33, 0.5),0 0 0 0 rgba(24, 211, 33, 0.3);
+    box-shadow: 0 0 0 0 rgba(24, 167, 211, 0.7), 0 0 0 0 rgba(24, 167, 211, 0.5), 0 0 0 0 rgba(24, 167, 211, 0.3); /* Changed from green to blue */
     opacity: 0;
   }
 }
+
     </style>
     <style>
       /* General Reset */
@@ -393,16 +369,16 @@ button:hover {
           <div class="stats" id="delivered-orders">Delivered Orders: Loading...</div>
       </div>
        
-<div class="container1">
-  <div class="data">
-    <p>Latitude:<span id="latitude"></span> And Longitude:<span id="longitude"></span></</p>
-  </div>
-  <div class="card1">
-    <div class="circle"></div>
-    <div class="dot"><span id="latitude"></span></div>
-    <div class="dot2"><span id="longitude"></span></div>
-  </div>
-</div>
+ <div class="container1">
+      <div class="data">
+        <p>Latitude:<span id="latitude"></span> And Longitude:<span id="longitude"></p>
+      </div>
+      <div class="card1">
+        <div class="circle"></div>
+        <div class="dot"></div>
+        <div class="dot2"></div>
+      </div>
+    </div>
         <div id="locationDisplay">
             <p><strong>Latitude:</strong> <span id="latitude"></span></p>
             <p><strong>Longitude:</strong> <span id="longitude"></span></p>
