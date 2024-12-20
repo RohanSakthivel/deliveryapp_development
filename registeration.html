@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery Partner Registration</title>
+    <style>
+        @import url("https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600&display=swap");
+
+* {
+  box-sizing: border-box;
+  outline: none;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  font-family: "Quicksand", sans-serif;
+  --app-bg: #fff;
+  --modal-before: rgba(215, 215, 215, 0.5);
+  --main-font-color: #222; /* Darker text color */
+  --light-font-color: #a0a0a0; /* Slightly darker placeholder color */
+  --main-border-color: #dcdcdc;
+  --secondary-border-color: #faeceb;
+  --button-bg-light: #f3f3f3;
+  --cards-area-bg: #f4f4f6;
+  --cards-bg: #fff;
+  --buttons-color-primary: #ff6700;
+  --buttons-color-secondary: #f8e4e5;
+  --input-bg: #f9f9f9;
+  --error-color: #e63946;
+  --success-color: #38a169;
+}
+
+body {
+  background-color: var(--app-bg);
+  color: var(--main-font-color);
+  font-family: var(--font-family);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 1rem;
+}
+
+.cards-for-registration {
+  background-color: var(--cards-bg);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+}
+
+h2 {
+  font-size: 1.8rem;
+  color: var(--buttons-color-primary);
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+input, select, button {
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 0.75rem;
+  border: 1px solid var(--main-border-color);
+  border-radius: 6px;
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+input, select {
+  background-color: var(--input-bg);
+  color: var(--main-font-color);
+}
+
+input::placeholder, select {
+  color: var(--light-font-color);
+}
+
+input:focus, select:focus {
+  border-color: var(--buttons-color-primary);
+  background-color: #fff;
+}
+
+select {
+  appearance: none;
+  cursor: pointer;
+}
+
+button {
+  background-color: var(--buttons-color-primary);
+  color: #fff;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  padding: 0.75rem;
+  border-radius: 6px;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #e65a00;
+}
+
+button:active {
+  background-color: #cc5000;
+}
+
+button:disabled {
+  background-color: var(--button-bg-light);
+  cursor: not-allowed;
+  color: var(--light-font-color);
+}
+
+input[type="password"] {
+  font-family: 'Quicksand', sans-serif;
+  letter-spacing: 0.1em;
+}
+
+@media (max-width: 500px) {
+  .cards-for-registration {
+    padding: 1.5rem;
+  }
+
+  h2 {
+    font-size: 1.6rem;
+  }
+
+  input, select, button {
+    padding: 0.65rem;
+  }
+}
+
+
+
+
+
+
+
+/* From Uiverse.io by doniaskima */ 
+.btn-96,
+.btn-96 *,
+.btn-96 :after,
+.btn-96 :before,
+.btn-96:after,
+.btn-96:before {
+  border: 0 solid;
+  box-sizing: border-box;
+}
+
+.btn-96 {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-appearance: button;
+  background-color: #000;
+  background-image: none;
+  color: #fff;
+  cursor: pointer;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, sans-serif,
+    Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
+  font-size: 100%;
+  line-height: 1.5;
+  margin: 0;
+  -webkit-mask-image: -webkit-radial-gradient(#000, #fff);
+  padding: 0;
+}
+
+.btn-96:disabled {
+  cursor: default;
+}
+
+.btn-96:-moz-focusring {
+  outline: auto;
+}
+
+.btn-96 svg {
+  display: block;
+  vertical-align: middle;
+}
+
+.btn-96 [hidden] {
+  display: none;
+}
+
+.btn-96 {
+  box-sizing: border-box;
+  display: block;
+  font-weight: 900;
+  -webkit-mask-image: none;
+  padding: 2rem 5rem;
+  perspective: 800px;
+  position: relative;
+  text-transform: uppercase;
+  transform-style: preserve-3d;
+}
+
+.btn-96 span {
+  background: #fff;
+  color: #000;
+  display: grid;
+  inset: 0;
+  place-items: center;
+  position: absolute;
+  transform: rotateX(0deg);
+  transform-origin: top center;
+  transition: 0.2s;
+}
+
+.btn-96:hover span {
+  transform: rotateX(35deg);
+}
+
+.btn-96:after,
+.btn-96:before {
+  background: #ddd;
+  content: "";
+  height: 100%;
+  left: 0;
+  position: absolute;
+  top: 0;
+  transform: rotateX(0deg);
+  width: 100%;
+  z-index: -1;
+}
+
+.btn-96:after {
+  background: #ccc;
+  width: 0;
+}
+
+.btn-96:hover:after {
+  -webkit-animation: progress-bar 1.2s;
+  animation: progress-bar 1.2s;
+}
+
+@-webkit-keyframes progress-bar {
+  0% {
+    opacity: 1;
+    width: 0;
+  }
+
+  10% {
+    opacity: 1;
+    width: 15%;
+  }
+
+  25% {
+    opacity: 1;
+    width: 25%;
+  }
+
+  40% {
+    opacity: 1;
+    width: 35%;
+  }
+
+  55% {
+    opacity: 1;
+    width: 75%;
+  }
+
+  60% {
+    opacity: 1;
+    width: 100%;
+  }
+
+  to {
+    opacity: 0;
+    width: 100%;
+  }
+}
+
+@keyframes progress-bar {
+  0% {
+    opacity: 1;
+    width: 0;
+  }
+
+  10% {
+    opacity: 1;
+    width: 15%;
+  }
+
+  25% {
+    opacity: 1;
+    width: 25%;
+  }
+
+  40% {
+    opacity: 1;
+    width: 35%;
+  }
+
+  55% {
+    opacity: 1;
+    width: 75%;
+  }
+
+  60% {
+    opacity: 1;
+    width: 100%;
+  }
+
+  to {
+    opacity: 0;
+    width: 100%;
+  }
+}
+
+
+    </style>
+</head>
+<body>
+    <section class="cards-for-registration">
+    <h2>Delivery Partner Registration</h2>
+    <form id="registrationForm">
+        <input type="text" id="partnerName" placeholder="Partner Name" required>
+        <input type="text" id="mobile" placeholder="Mobile" required>
+        <input type="email" id="email" placeholder="Email" required>
+        <select id="vehicleType" required>
+            <option value="" disabled selected>Select your vehicle type</option>
+            <option value="cycle">Cycle</option>
+            <option value="bike">Bike</option>
+            <option value="pumptruck">Pump Truck</option>
+            <option value="van">Van</option>
+        </select>
+        <input type="text" id="vehicleName" placeholder="Vehicle Name" required>
+        <input type="text" id="vehicleNumber" placeholder="Vehicle Number" required>
+        <input type="text" id="vehiclercNumber" placeholder="Vehicle RC Number" required>
+        <input type="text" id="aadharNumber" placeholder="Aadhar Number" required>
+        <input type="text" id="userdl" placeholder="indian union driving License number" required>
+        <input type="text" id="vehicleimage" placeholder="vehicle image url" required>
+        <input type="text" id="vehiclemobilestand" placeholder="vehicle image mobile Stand in url" required>
+        <input type="text" id="address" placeholder="Address" required>
+        <input type="password" id="password" placeholder="password" required>
+        <input type="password" id="confirm-password" placeholder="confirm-password" required>
+        <button type="submit">Register Delivery Partner</button>
+        <h4>if you already register login</h4>
+        <a href="index.html">
+          <div class="btn-96"><span>login</span></div>
+        </a>
+        
+    </form>
+    </section>
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getFirestore, setDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-analytics.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyD4_h-2b2_IjrfvSKOxHrL9gWotG-SanFo",
+            authDomain: "zolowworder.firebaseapp.com",
+            projectId: "zolowworder",
+            storageBucket: "zolowworder.appspot.com",
+            messagingSenderId: "996982358637",
+            appId: "1:996982358637:web:1adcf03392a68d5c6f3564",
+            measurementId: "G-4L2GTKRRMF"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getFirestore(app);
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const partnerName = document.getElementById('partnerName').value;
+                const mobile = document.getElementById('mobile').value;
+                const email = document.getElementById('email').value;
+                const vehicleType = document.getElementById('vehicleType').value;
+                const vehicleName = document.getElementById('vehicleName').value;
+                const vehicleNumber = document.getElementById('vehicleNumber').value;
+                const userdl = document.getElementById('userdl').value;
+                const vehiclercNumber = document.getElementById('vehiclercNumber').value;
+                const aadharNumber = document.getElementById('aadharNumber').value;
+                const address = document.getElementById('address').value;
+                const password = document.getElementById('password').value;
+                const vehicleimage = document.getElementById('vehicleimage').value;
+                const vehiclemobilestand = document.getElementById('vehiclemobilestand').value;
+                
+
+                const partnerId = email; // Use email as unique partner ID
+
+                try {
+                    await setDoc(doc(db, 'deliveryPartners', partnerId), {
+                        partnerName: partnerName,
+                        mobile: mobile,
+                        email: email,
+                        vehicleType: vehicleType,
+                        vehicleName:vehicleName,
+                        vehicleNumber: vehicleNumber,
+                        userdl:userdl,
+                        vehiclercNumber:vehiclercNumber,
+                        aadharNumber: aadharNumber,
+                        address: address,
+                        vehicleimage:vehicleimage,
+                        vehiclemobilestand:vehiclemobilestand,
+                        password:password,
+                        timestamp: serverTimestamp()
+
+                    });
+                    alert('Delivery partner registered successfully!');
+                    document.getElementById('registrationForm').reset();
+                } catch (error) {
+                    console.error('Error adding document: ', error);
+                    alert(`Error registering delivery partner: ${error.message}`);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
