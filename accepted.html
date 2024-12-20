@@ -341,7 +341,7 @@ height:auto;
                 <strong style="${textcolor}">Payment Status:</strong> ${payment}<br>
                 <strong style="${textcolor}">Mobile Number:</strong> ${mobile}<br>
                 <strong style="${textcolor}">Products:</strong>
-                <ul>${products.map(p => `<div style="${textcolor}" ><li>${p.product} (₹${p.price})</li> warehouse 📍 ${p.warehouseName}  <img src="https://cdn2.iconfinder.com/data/icons/map-and-location-filloutline-1/64/warehouse-Map-location-store-pin-512.png" class="map-image">
+                <ul>${products.map(p => `<div style="black" ><li>${p.product} (₹${p.price})</li> warehouse 📍 ${p.warehouseName}  <img src="https://cdn2.iconfinder.com/data/icons/map-and-location-filloutline-1/64/warehouse-Map-location-store-pin-512.png" class="map-image">
                </div>`).join('')}</ul>
                 <img onclick="scanningqr('${orderId}', '${total}', '${products.map(p => p.product).join(", ")}', '${address}', '${deliveryDeadline}')" src="https://images-na.ssl-images-amazon.com/images/I/41C68Cd9eoL.png" class="map-image">
                  <a href="https://www.google.com/maps?q=${latitude},${longitude}">
