@@ -341,7 +341,7 @@ height:auto;
                 <strong style="${textcolor}">Payment Status:</strong> ${payment}<br>
                 <strong style="${textcolor}">Mobile Number:</strong> ${mobile}<br>
                 <strong style="${textcolor}">Products:</strong>
-                <ul>${products.map(p => `<li>${p.product} (₹${p.price})</li> <button>warehouse ${p.warehouseName}</button>`).join('')}</ul>
+                <ul>${products.map(p => `<li>${p.product} (₹${p.price})</li> <button>warehouse 📍 ${p.warehouseName}</button>`).join('')}</ul>
                 <img onclick="scanningqr('${orderId}', '${total}', '${products.map(p => p.product).join(", ")}', '${address}', '${deliveryDeadline}')" src="https://images-na.ssl-images-amazon.com/images/I/41C68Cd9eoL.png" class="map-image">
                  <a href="https://www.google.com/maps?q=${latitude},${longitude}">
                 <img src="https://i.pinimg.com/originals/74/c6/a3/74c6a3a04b776eb1dd5e5343fbbc1a2c.png" class="map-image"></a>
